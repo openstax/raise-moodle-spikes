@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-postgres-{{ .Values.deploymentName }}
+  labels:
+    app: {{ .Chart.Name }}-postgres-{{ .Values.deploymentName }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-postgres-{{ .Values.deploymentName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-postgres-{{ .Values.deploymentName }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-postgres-{{ .Values.deploymentName }}
+          image: postgres:13
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-postgres-creds-{{ .Values.deploymentName }}
+                  key: username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-postgres-creds-{{ .Values.deploymentName }}
+                  key: password
+            - name: POSTGRES_DB
+              value: {{ .Values.dbName }}
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: pgdata
+              mountPath: "/var/lib/postgresql"
+      volumes:
+        - name: pgdata
+          persistentVolumeClaim:
+            claimName: {{ .Chart.Name }}-postgres-pvc-{{ .Values.deploymentName }}

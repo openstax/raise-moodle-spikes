@@ -1,0 +1,12 @@
+{{- if hasPrefix "https" .Values.moodleWebRoot }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Chart.Name }}-moodle-{{ .Values.deploymentName }}
+spec:
+  selector:
+    app: {{ .Chart.Name }}-moodle-{{ .Values.deploymentName }}
+  ports:
+    - port: 80
+      targetPort: 80
+{{- end }}
