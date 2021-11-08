@@ -1,0 +1,10 @@
+{{- if hasPrefix "https" .Values.moodleWebRoot }}
+apiVersion: traefik.containo.us/v1alpha1
+kind: Middleware
+metadata:
+  name: {{ .Chart.Name }}-{{ .Values.deploymentName }}-redirect
+spec:
+  redirectScheme:
+    scheme: https
+    permanent: true
+{{- end }}

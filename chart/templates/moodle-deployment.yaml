@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-moodle-{{ .Values.deploymentName }}
+  labels:
+    app: {{ .Chart.Name }}-moodle-{{ .Values.deploymentName }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-moodle-{{ .Values.deploymentName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-moodle-{{ .Values.deploymentName }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-moodle-{{ .Values.deploymentName }}
+          image: {{ .Values.moodleImage.name }}:{{ .Values.moodleImage.tag }}
+          env: &commonenv
+            - name: MOODLE_DOCKER_DBUSER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-postgres-creds-{{ .Values.deploymentName }}
+                  key: username
+            - name: MOODLE_DOCKER_DBPASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-postgres-creds-{{ .Values.deploymentName }}
+                  key: password
+            - name: MOODLE_DOCKER_DBNAME
+              value: {{ .Values.dbName }}
+            - name: MOODLE_DOCKER_DBHOST
+              value: {{ .Chart.Name }}-postgres-{{ .Values.deploymentName }}
+            - name: MOODLE_DOCKER_DATAROOT
+              value: {{ .Values.moodleDataRoot }}
+            - name: MOODLE_DOCKER_WWWROOT
+              value: {{ .Values.moodleWebRoot }}
+            {{- if hasPrefix "https" .Values.moodleWebRoot }}
+            - name: MOODLE_DOCKER_SSLPROXY
+              value: "1"
+            {{- end }}
+          ports:
+            - containerPort: 80
+          volumeMounts:
+            - name: moodledata
+              mountPath: {{ .Values.moodleDataRoot }}
+        - name: {{ .Chart.Name }}-moodle-cron-{{ .Values.deploymentName }}
+          image: {{ .Values.moodleImage.name }}:{{ .Values.moodleImage.tag }}
+          env: *commonenv
+          command: ["/bin/bash"]
+          args: ["-c", "printenv | grep MOODLE_DOCKER > /etc/environment; cron -f"]
+          volumeMounts:
+            - name: moodledata
+              mountPath: {{ .Values.moodleDataRoot }}
+      volumes:
+        - name: moodledata
+          persistentVolumeClaim:
+            claimName: {{ .Chart.Name }}-moodle-pvc-{{ .Values.deploymentName }}

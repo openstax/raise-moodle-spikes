@@ -1,0 +1,14 @@
+# The following values should be updated for each installation
+deploymentName: dev
+dbUsername: moodle
+dbPassword: moodledbpassword
+moodleImage:
+  name: <account>.dkr.ecr.<region>.amazonaws.com/moodle
+  tag: dev
+
+# The following values can be optionally modified as desired
+dbName: moodle
+dbStorageGb: 1
+moodleStorageGb: 1
+moodleDataRoot: "/var/www/moodledata"
+moodleWebRoot: "http://localhost:8888"

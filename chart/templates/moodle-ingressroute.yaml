@@ -1,0 +1,35 @@
+{{- if hasPrefix "https" .Values.moodleWebRoot }}
+{{- $domain := trimPrefix "https://" .Values.moodleWebRoot -}}
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Chart.Name }}-moodle-tls-{{ .Values.deploymentName }}
+spec:
+  entryPoints:
+    - websecure
+  tls:
+    secretName: {{ $domain }}-tls
+  routes:
+    - match: "Host(`{{ $domain }}`)"
+      kind: Rule
+      services:
+        - name: {{ .Chart.Name }}-moodle-{{ .Values.deploymentName }}
+          port: 80
+
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: {{ .Chart.Name }}-moodle-{{ .Values.deploymentName }}
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: "Host(`{{ $domain }}`)"
+      kind: Rule
+      middlewares:
+        - name: {{ .Chart.Name }}-{{ .Values.deploymentName }}-redirect
+      services:
+        - name: {{ .Chart.Name }}-moodle-{{ .Values.deploymentName }}
+          port: 80
+{{- end }}

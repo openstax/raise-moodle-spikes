@@ -1,0 +1,15 @@
+{{- if hasPrefix "https" .Values.moodleWebRoot }}
+{{- $domain := trimPrefix "https://" .Values.moodleWebRoot -}}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: {{ $domain }}
+spec:
+  secretName: {{ $domain }}-tls
+  commonName: {{ $domain }}
+  dnsNames:
+    - {{ $domain }}
+  issuerRef:
+    name: letsencrypt
+    kind: ClusterIssuer
+{{- end }}

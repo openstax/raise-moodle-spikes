@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Chart.Name }}-postgres-{{ .Values.deploymentName }}
+spec:
+  selector:
+    app: {{ .Chart.Name }}-postgres-{{ .Values.deploymentName }}
+  ports:
+    - port: 5432
+      targetPort: 5432
