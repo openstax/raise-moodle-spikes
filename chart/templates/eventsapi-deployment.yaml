@@ -17,6 +17,7 @@ spec:
       containers:
         - name: {{ .Chart.Name }}-eventsapi-{{ .Values.deploymentName }}
           image: {{ .Values.eventsapiImage.name }}:{{ .Values.eventsapiImage.tag }}
+          imagePullPolicy: Always
           env:
             - name: EVENTS_S3_BUCKET
               value: {{ .Values.eventsApiS3Bucket }}

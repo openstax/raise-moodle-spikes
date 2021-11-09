@@ -19,6 +19,7 @@ spec:
       containers:
         - name: {{ .Chart.Name }}-moodle-{{ .Values.deploymentName }}
           image: {{ .Values.moodleImage.name }}:{{ .Values.moodleImage.tag }}
+          imagePullPolicy: Always
           env: &commonenv
             - name: MOODLE_DOCKER_DBUSER
               valueFrom:
