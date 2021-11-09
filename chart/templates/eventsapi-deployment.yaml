@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-eventsapi-{{ .Values.deploymentName }}
+  labels:
+    app: {{ .Chart.Name }}-eventsapi-{{ .Values.deploymentName }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-eventsapi-{{ .Values.deploymentName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-eventsapi-{{ .Values.deploymentName }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-eventsapi-{{ .Values.deploymentName }}
+          image: {{ .Values.eventsapiImage.name }}:{{ .Values.eventsapiImage.tag }}
+          env:
+            - name: EVENTS_S3_BUCKET
+              value: {{ .Values.eventsApiS3Bucket }}
+            - name: EVENTS_S3_PREFIX
+              value: {{ .Values.eventsApiS3Prefix }}
+          ports:
+            - containerPort: 80
