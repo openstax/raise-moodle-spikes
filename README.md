@@ -15,7 +15,7 @@ The following table describes the directories in this repo:
 
 ### Deploying a local environment
 
-You can use the following commands to get a basic local environment running using `docker-compose`:
+You can use the following commands to get a basic local environment running using `docker-compose` (you may want to modify values in `.env` beforehand):
 
 ```bash
 $ docker-compose up -d
@@ -34,7 +34,7 @@ This repository includes a Helm chart that can be used to easily deploy an insta
 
 #### Pushing images to ECR
 
-Before deploying, you will need to push your dev image to ECR:
+Before deploying, you will need to push your dev images to ECR:
 
 ```bash
 $ export REPOHOST=<account>.dkr.ecr.<region>.amazonaws.com
@@ -42,6 +42,8 @@ $ export TAG=<tagvalue>
 $ aws ecr get-login-password | docker login --username AWS --password-stdin $REPOHOST
 $ docker build . -f moodle/Dockerfile -t $REPOHOST/moodle:$TAG
 $ docker push $REPOHOST/moodle:$TAG
+$ docker build services/eventsapi/. -t $REPOHOST/moodle-eventsapi:$TAG
+$ docker push $REPOHOST/moodle-eventsapi:$TAG
 ```
 
 #### Deploying with Helm

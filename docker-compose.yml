@@ -36,6 +36,16 @@ services:
       MOODLE_DOCKER_DATAROOT: /var/www/moodledata
     depends_on:
       - moodle
+  eventsapi:
+    build:
+      context: services/eventsapi
+    networks:
+      - raisemoodle
+    ports:
+      - 8888:80 # Only exposed for developer convenience
+    environment:
+      - EVENTS_S3_BUCKET
+      - EVENTS_S3_PREFIX
   postgres:
     image: "postgres:13"
     volumes:
