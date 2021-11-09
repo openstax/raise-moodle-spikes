@@ -6,6 +6,7 @@ services:
       dockerfile: moodle/Dockerfile
     volumes:
       - moodledata:/var/www/moodledata
+      - ./plugins/events:/var/www/html/admin/tool/events
     networks:
       - raisemoodle
     environment:
@@ -15,6 +16,7 @@ services:
       MOODLE_DOCKER_DBPASS: $POSTGRES_PASSWORD
       MOODLE_DOCKER_WWWROOT: http://localhost:8000
       MOODLE_DOCKER_DATAROOT: /var/www/moodledata
+      EVENTSAPI_SERVER: eventsapi
     ports:
       - 8000:80
     depends_on:

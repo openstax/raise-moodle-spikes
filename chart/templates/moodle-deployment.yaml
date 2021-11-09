@@ -38,6 +38,8 @@ spec:
               value: {{ .Values.moodleDataRoot }}
             - name: MOODLE_DOCKER_WWWROOT
               value: {{ .Values.moodleWebRoot }}
+            - name: EVENTSAPI_SERVER
+              value: {{ .Chart.Name }}-eventsapi-{{ .Values.deploymentName }}
             {{- if hasPrefix "https" .Values.moodleWebRoot }}
             - name: MOODLE_DOCKER_SSLPROXY
               value: "1"
