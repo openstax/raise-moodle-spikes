@@ -10,6 +10,9 @@ The following table describes the directories in this repo:
 | - | - |
 | `moodle` | Docker files for building development Moodle images that can be deployed locally using `docker-compose` or on Kubernetes using `helm` |
 | `chart` | A Helm chart used to deploy systems to k8s clusters |
+| `plugins` | Moodle plugins |
+| `services` | Ancillary services used to implement / demonstrate functionality |
+| `demos` | Miscellaneous code / files used for demos |
 
 ## How Tos
 
