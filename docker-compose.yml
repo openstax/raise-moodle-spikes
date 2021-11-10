@@ -7,6 +7,7 @@ services:
     volumes:
       - moodledata:/var/www/moodledata
       - ./plugins/events:/var/www/html/admin/tool/events
+      - ./plugins/study:/var/www/html/mod/study
     networks:
       - raisemoodle
     environment:
