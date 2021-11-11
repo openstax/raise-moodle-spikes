@@ -5,6 +5,9 @@ dbPassword: moodledbpassword
 moodleImage:
   name: <account>.dkr.ecr.<region>.amazonaws.com/moodle
   tag: dev
+eventsapiImage:
+  name: <account>.dkr.ecr.<region>.amazonaws.com/moodle-eventsapi
+  tag: dev
 
 # The following values can be optionally modified as desired
 dbName: moodle
@@ -12,3 +15,8 @@ dbStorageGb: 1
 moodleStorageGb: 1
 moodleDataRoot: "/var/www/moodledata"
 moodleWebRoot: "http://localhost:8888"
+
+# These values should be set if you want data to be stored in S3 vs logged
+# by the events API
+eventsApiS3Bucket:
+eventsApiS3Prefix:
