@@ -21,6 +21,7 @@ services:
       MOODLE_DOCKER_DBPASS: $POSTGRES_PASSWORD
       MOODLE_DOCKER_WWWROOT: http://localhost:8000
       MOODLE_DOCKER_DATAROOT: /var/www/moodledata
+      MOODLE_DOCKER_SMTPHOST: mailhog:1025
       EVENTSAPI_SERVER: eventsapi
     ports:
       - 8000:80
@@ -41,6 +42,7 @@ services:
       MOODLE_DOCKER_DBUSER: $POSTGRES_USER
       MOODLE_DOCKER_DBPASS: $POSTGRES_PASSWORD
       MOODLE_DOCKER_DATAROOT: /var/www/moodledata
+      MOODLE_DOCKER_SMTPHOST: mailhog:1025
     depends_on:
       - moodle
   eventsapi:
@@ -63,6 +65,12 @@ services:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DB
+  mailhog:
+    image: mailhog/mailhog
+    networks:
+      - raisemoodle
+    ports:
+      - 8025:8025
 networks:
   raisemoodle:
 volumes:

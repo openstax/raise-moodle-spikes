@@ -767,6 +767,10 @@ $CFG->sslproxy = getenv('MOODLE_DOCKER_SSLPROXY') !== false;
 // Enable verbose debug information during sending of email messages to SMTP server.
 // Note: also requires $CFG->debug set to DEBUG_DEVELOPER.
 // $CFG->debugsmtp = true;
+
+$CFG->smtphosts = getenv('MOODLE_DOCKER_SMTPHOST');
+$CFG->noreplyaddress = 'noreply@example.com';
+
 //
 // Prevent JS caching
 // $CFG->cachejs = false; // NOT FOR PRODUCTION SERVERS!

@@ -1,0 +1,12 @@
+{{- if .Values.enableMailhog }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Chart.Name }}-mailhog-{{ .Values.deploymentName }}
+spec:
+  selector:
+    app: {{ .Chart.Name }}-mailhog-{{ .Values.deploymentName }}
+  ports:
+    - port: 1025
+      targetPort: 1025
+{{- end }}
