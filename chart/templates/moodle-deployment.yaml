@@ -41,6 +41,10 @@ spec:
               value: {{ .Values.moodleWebRoot }}
             - name: EVENTSAPI_SERVER
               value: {{ .Chart.Name }}-eventsapi-{{ .Values.deploymentName }}
+            {{- if .Values.enableMailhog }}
+            - name: MOODLE_DOCKER_SMTPHOST
+              value: {{ .Chart.Name }}-mailhog-{{ .Values.deploymentName }}:1025
+            {{- end }}
             {{- if hasPrefix "https" .Values.moodleWebRoot }}
             - name: MOODLE_DOCKER_SSLPROXY
               value: "1"

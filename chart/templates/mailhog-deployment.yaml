@@ -1,0 +1,26 @@
+{{- if .Values.enableMailhog }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-mailhog-{{ .Values.deploymentName }}
+  labels:
+    app: {{ .Chart.Name }}-mailhog-{{ .Values.deploymentName }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-mailhog-{{ .Values.deploymentName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-mailhog-{{ .Values.deploymentName }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}-mailhog-{{ .Values.deploymentName }}
+          image: mailhog/mailhog
+          ports:
+            - name: smtp
+              containerPort: 1025
+            - name: http
+              containerPort: 8025
+{{- end }}
