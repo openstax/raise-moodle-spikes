@@ -57,28 +57,10 @@ def copy_course(
 
 
 @cli.command()
-@click.argument("enrolment_id")
-def self_enrolment_info(enrolment_id):
-    """Get self enrolment details"""
-    moodle = get_moodle_client()
-    res = moodle.get_self_enrolment_info(enrolment_id)
-    click.echo(json.dumps(res, indent=4))
-
-
-@cli.command()
 def courses():
     """Get list of courses"""
     moodle = get_moodle_client()
     res = moodle.get_courses()
-    click.echo(json.dumps(res, indent=4))
-
-
-@cli.command()
-@click.argument("course_id")
-def course_enrolment_methods(course_id):
-    """Get course enrolment methods"""
-    moodle = get_moodle_client()
-    res = moodle.get_course_enrolment_methods(course_id)
     click.echo(json.dumps(res, indent=4))
 
 

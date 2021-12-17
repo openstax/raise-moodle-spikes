@@ -2,9 +2,6 @@ MOODLE_WEBSERVICE_PATH = "/webservice/rest/server.php"
 
 MOODLE_FUNC_GET_COURSES = "core_course_get_courses"
 MOODLE_FUNC_DUPLICATE_COURSE = "core_course_duplicate_course"
-MOODLE_FUNC_GET_COURSE_ENROLMENT_METHODS = \
-    "core_enrol_get_course_enrolment_methods"
-MOODLE_FUNC_ENROL_SELF_INSTANCE_INFO = "enrol_self_get_instance_info"
 MOODLE_FUNC_ENABLE_SELF_ENROLMENT_METHOD = \
     "local_raisecli_enable_self_enrolment_method"
 MOODLE_FUNC_GET_ROLE_BY_SHORTNAME = "local_raisecli_get_role_by_shortname"
@@ -97,23 +94,8 @@ class MoodleClient:
             data
         )
 
-    def get_self_enrolment_info(self, enrolment_id):
-        data = {
-            "instanceid": enrolment_id
-        }
-        return self._get(
-            MOODLE_FUNC_ENROL_SELF_INSTANCE_INFO,
-            data
-        )
-
     def get_courses(self):
         return self._get(MOODLE_FUNC_GET_COURSES)
-
-    def get_course_enrolment_methods(self, course_id):
-        data = {
-            "courseid": course_id
-        }
-        return self._get(MOODLE_FUNC_GET_COURSE_ENROLMENT_METHODS, data)
 
     def get_self_enrolment_methods(self, course_id, role_id):
         data = {

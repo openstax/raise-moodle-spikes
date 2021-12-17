@@ -49,23 +49,6 @@ def test_copy_course(mocker):
     )
 
 
-def test_self_enrolment_info(mocker):
-    session_mock = mocker.Mock()
-    client = moodle.MoodleClient(
-        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
-    )
-    client.get_self_enrolment_info(111)
-    session_mock.get.assert_called_once_with(
-        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
-        params={
-            "instanceid": 111,
-            "wsfunction": moodle.MOODLE_FUNC_ENROL_SELF_INSTANCE_INFO,
-            "moodlewsrestformat": "json",
-            "wstoken": TEST_MOODLE_TOKEN
-        }
-    )
-
-
 def test_get_courses(mocker):
     session_mock = mocker.Mock()
     client = moodle.MoodleClient(
@@ -76,23 +59,6 @@ def test_get_courses(mocker):
         f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
         params={
             "wsfunction": moodle.MOODLE_FUNC_GET_COURSES,
-            "moodlewsrestformat": "json",
-            "wstoken": TEST_MOODLE_TOKEN
-        }
-    )
-
-
-def test_get_course_enrolment_methods(mocker):
-    session_mock = mocker.Mock()
-    client = moodle.MoodleClient(
-        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
-    )
-    client.get_course_enrolment_methods(111)
-    session_mock.get.assert_called_once_with(
-        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
-        params={
-            "courseid": 111,
-            "wsfunction": moodle.MOODLE_FUNC_GET_COURSE_ENROLMENT_METHODS,
             "moodlewsrestformat": "json",
             "wstoken": TEST_MOODLE_TOKEN
         }
