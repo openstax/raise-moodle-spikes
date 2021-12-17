@@ -80,3 +80,41 @@ def course_enrolment_methods(course_id):
     moodle = get_moodle_client()
     res = moodle.get_course_enrolment_methods(course_id)
     click.echo(json.dumps(res, indent=4))
+
+
+@cli.command()
+@click.argument("course_id")
+@click.argument("role_id")
+def self_enrolment_methods(course_id, role_id):
+    """Get self enrolment methods by course and role"""
+    moodle = get_moodle_client()
+    res = moodle.get_self_enrolment_methods(course_id, role_id)
+    click.echo(json.dumps(res, indent=4))
+
+
+@cli.command()
+@click.argument("shortname")
+def role_info(shortname):
+    """Get role data by shortname"""
+    moodle = get_moodle_client()
+    res = moodle.get_role_by_shortname(shortname)
+    click.echo(json.dumps(res, indent=4))
+
+
+@cli.command()
+@click.argument("enrol_id")
+def enable_self_enrolment_method(enrol_id):
+    """Enable self enrolment method"""
+    moodle = get_moodle_client()
+    res = moodle.enable_self_enrolment_method(enrol_id)
+    click.echo(json.dumps(res, indent=4))
+
+
+@cli.command()
+@click.argument("enrol_id")
+@click.argument("enrol_key")
+def set_self_enrolment_method_key(enrol_id, enrol_key):
+    """Set self enrolment method key"""
+    moodle = get_moodle_client()
+    res = moodle.set_self_enrolment_method_key(enrol_id, enrol_key)
+    click.echo(json.dumps(res, indent=4))

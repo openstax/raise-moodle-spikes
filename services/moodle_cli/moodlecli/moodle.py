@@ -1,9 +1,17 @@
 MOODLE_WEBSERVICE_PATH = "/webservice/rest/server.php"
+
 MOODLE_FUNC_GET_COURSES = "core_course_get_courses"
 MOODLE_FUNC_DUPLICATE_COURSE = "core_course_duplicate_course"
 MOODLE_FUNC_GET_COURSE_ENROLMENT_METHODS = \
     "core_enrol_get_course_enrolment_methods"
 MOODLE_FUNC_ENROL_SELF_INSTANCE_INFO = "enrol_self_get_instance_info"
+MOODLE_FUNC_ENABLE_SELF_ENROLMENT_METHOD = \
+    "local_raisecli_enable_self_enrolment_method"
+MOODLE_FUNC_GET_ROLE_BY_SHORTNAME = "local_raisecli_get_role_by_shortname"
+MOODLE_FUNC_GET_SELF_ENROLMENT_METHODS = \
+    "local_raisecli_get_self_enrolment_methods"
+MOODLE_FUNC_SET_SELF_ENROLMENT_METHOD_KEY = \
+    "local_raisecli_set_self_enrolment_method_key"
 
 
 def convert_moodle_params(data, prefix=""):
@@ -106,3 +114,29 @@ class MoodleClient:
             "courseid": course_id
         }
         return self._get(MOODLE_FUNC_GET_COURSE_ENROLMENT_METHODS, data)
+
+    def get_self_enrolment_methods(self, course_id, role_id):
+        data = {
+            "courseid": course_id,
+            "roleid": role_id
+        }
+        return self._get(MOODLE_FUNC_GET_SELF_ENROLMENT_METHODS, data)
+
+    def get_role_by_shortname(self, shortname):
+        data = {
+            "shortname": shortname
+        }
+        return self._get(MOODLE_FUNC_GET_ROLE_BY_SHORTNAME, data)
+
+    def enable_self_enrolment_method(self, enrol_id):
+        data = {
+            "enrolid": enrol_id
+        }
+        return self._post(MOODLE_FUNC_ENABLE_SELF_ENROLMENT_METHOD, data)
+
+    def set_self_enrolment_method_key(self, enrol_id, enrol_key):
+        data = {
+            "enrolid": enrol_id,
+            "enrolkey": enrol_key
+        }
+        return self._post(MOODLE_FUNC_SET_SELF_ENROLMENT_METHOD_KEY, data)

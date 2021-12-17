@@ -97,3 +97,73 @@ def test_get_course_enrolment_methods(mocker):
             "wstoken": TEST_MOODLE_TOKEN
         }
     )
+
+
+def test_get_self_enrolment_methods(mocker):
+    session_mock = mocker.Mock()
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    client.get_self_enrolment_methods(111, 12)
+    session_mock.get.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        params={
+            "courseid": 111,
+            "roleid": 12,
+            "wsfunction": moodle.MOODLE_FUNC_GET_SELF_ENROLMENT_METHODS,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+        }
+    )
+
+
+def test_get_role_by_shortname(mocker):
+    session_mock = mocker.Mock()
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    client.get_role_by_shortname("rolename")
+    session_mock.get.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        params={
+            "shortname": "rolename",
+            "wsfunction": moodle.MOODLE_FUNC_GET_ROLE_BY_SHORTNAME,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+        }
+    )
+
+
+def test_enable_self_enrolment_method(mocker):
+    session_mock = mocker.Mock()
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    client.enable_self_enrolment_method(111)
+    session_mock.post.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        {
+            "enrolid": 111,
+            "wsfunction": moodle.MOODLE_FUNC_ENABLE_SELF_ENROLMENT_METHOD,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+        }
+    )
+
+
+def test_set_self_enrolment_method_key(mocker):
+    session_mock = mocker.Mock()
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    client.set_self_enrolment_method_key(111, "Enrolment key value")
+    session_mock.post.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        {
+            "enrolid": 111,
+            "enrolkey": "Enrolment key value",
+            "wsfunction": moodle.MOODLE_FUNC_SET_SELF_ENROLMENT_METHOD_KEY,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+        }
+    )
