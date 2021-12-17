@@ -8,6 +8,7 @@ services:
       - moodledata:/var/www/moodledata
       - ./plugins/events:/var/www/html/admin/tool/events
       - ./plugins/study:/var/www/html/mod/study
+      - ./plugins/raisecli:/var/www/html/local/raisecli
       - ./plugins/clever_oauth2/service/clever.php:/var/www/html/lib/classes/oauth2/service/clever.php
       - ./plugins/clever_oauth2/client/clever.php:/var/www/html/lib/classes/oauth2/client/clever.php
       - ./plugins/clever_oauth2/tool/issuers.php:/var/www/html/admin/tool/oauth2/issuers.php
