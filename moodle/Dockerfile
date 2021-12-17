@@ -16,6 +16,7 @@ RUN chmod 644 /etc/cron.d/moodle
 
 COPY plugins/events /var/www/html/admin/tool/events
 COPY plugins/study /var/www/html/mod/study
+COPY plugins/raisecli /var/www/html/local/raisecli
 
 # TODO: Remove this nonsense once we've landed the code in the Moodle code repo
 # that we pull from above
