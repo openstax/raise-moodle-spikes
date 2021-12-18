@@ -1,3 +1,4 @@
+import pytest
 from moodlecli import moodle
 
 TEST_MOODLE_URL = "http://dagobah"
@@ -26,6 +27,7 @@ def test_convert_moodle_params():
 
 def test_copy_course(mocker):
     session_mock = mocker.Mock()
+    session_mock.post.return_value.json.return_value = {}
     client = moodle.MoodleClient(
         session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
     )
@@ -51,6 +53,7 @@ def test_copy_course(mocker):
 
 def test_get_courses(mocker):
     session_mock = mocker.Mock()
+    session_mock.get.return_value.json.return_value = {}
     client = moodle.MoodleClient(
         session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
     )
@@ -67,6 +70,7 @@ def test_get_courses(mocker):
 
 def test_get_self_enrolment_methods(mocker):
     session_mock = mocker.Mock()
+    session_mock.get.return_value.json.return_value = {}
     client = moodle.MoodleClient(
         session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
     )
@@ -85,6 +89,7 @@ def test_get_self_enrolment_methods(mocker):
 
 def test_get_role_by_shortname(mocker):
     session_mock = mocker.Mock()
+    session_mock.get.return_value.json.return_value = {}
     client = moodle.MoodleClient(
         session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
     )
@@ -102,6 +107,7 @@ def test_get_role_by_shortname(mocker):
 
 def test_enable_self_enrolment_method(mocker):
     session_mock = mocker.Mock()
+    session_mock.post.return_value.json.return_value = {}
     client = moodle.MoodleClient(
         session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
     )
@@ -119,6 +125,7 @@ def test_enable_self_enrolment_method(mocker):
 
 def test_set_self_enrolment_method_key(mocker):
     session_mock = mocker.Mock()
+    session_mock.post.return_value.json.return_value = {}
     client = moodle.MoodleClient(
         session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
     )
@@ -133,3 +140,17 @@ def test_set_self_enrolment_method_key(mocker):
             "wstoken": TEST_MOODLE_TOKEN
         }
     )
+
+
+def test_check_for_moodle_error(mocker):
+    result_mock = mocker.Mock()
+    result_mock.json.return_value = {
+        "exception": "error"
+    }
+
+    with pytest.raises(Exception):
+        moodle.check_for_moodle_error(result_mock)
+
+    # Confirm we handle valid array responses without errors
+    result_mock.json.return_value = []
+    moodle.check_for_moodle_error(result_mock)

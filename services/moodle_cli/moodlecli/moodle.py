@@ -44,6 +44,22 @@ def convert_moodle_params(data, prefix=""):
     return result
 
 
+def check_for_moodle_error(result):
+    """Check for errors before returning result"""
+    result.raise_for_status()
+
+    # Errors processing a request don't result in a non-success status code.
+    # Instead Moodle will return a JSON object with exception details.
+    result_json = result.json()
+    try:
+        if result_json.get('exception'):
+            raise Exception(result_json)
+    except AttributeError:
+        pass
+
+    return result_json
+
+
 class MoodleClient:
     def __init__(self, session, moodle_url, moodle_token):
         self.session = session
@@ -66,9 +82,7 @@ class MoodleClient:
             self.service_endpoint,
             self._create_params(service_function, data)
         )
-
-        res.raise_for_status()
-        return res.json()
+        return check_for_moodle_error(res)
 
     def _get(self, service_function, data=None):
         """GET to service function with provided data as parameters"""
@@ -76,9 +90,7 @@ class MoodleClient:
             self.service_endpoint,
             params=self._create_params(service_function, data)
         )
-
-        res.raise_for_status()
-        return res.json()
+        return check_for_moodle_error(res)
 
     def copy_course(
         self, source_id, course_name, course_shortname, course_category_id
