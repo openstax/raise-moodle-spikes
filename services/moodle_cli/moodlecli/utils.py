@@ -126,7 +126,7 @@ def setup_duplicate_course(
     # Return updated course dict adding course ID and enrolment URL / key
     coursedata[COURSE_BULK_CSV_COURSE_ID] = new_course_id
     coursedata[COURSE_BULK_CSV_COURSE_ENROLMENT_URL] = \
-        f"{moodle_client.moodle_url}/enrol/index.php?id={new_course_id}"
+        moodle_client.get_course_enrolment_url(new_course_id)
     coursedata[COURSE_BULK_CSV_COURSE_ENROLMENT_KEY] = enrolment_key
 
     return coursedata

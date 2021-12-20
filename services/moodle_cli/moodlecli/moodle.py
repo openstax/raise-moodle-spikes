@@ -186,3 +186,6 @@ class MoodleClient:
             }]
         }
         return self._post(MOODLE_FUNC_ENROL_USER, data)
+
+    def get_course_enrolment_url(self, course_id):
+        return f"{self.moodle_url}/enrol/index.php?id={course_id}"

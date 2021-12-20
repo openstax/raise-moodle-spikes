@@ -206,6 +206,15 @@ def test_create_user(mocker):
     assert "users[0][password]" in session_mock.post.call_args[0][1]
 
 
+def test_get_course_enrolment_url(mocker):
+    session_mock = mocker.Mock()
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    enrol_url = client.get_course_enrolment_url(111)
+    assert enrol_url == f"{TEST_MOODLE_URL}/enrol/index.php?id=111"
+
+
 def test_enrol_user(mocker):
     session_mock = mocker.Mock()
     session_mock.post.return_value.json.return_value = [{}]
