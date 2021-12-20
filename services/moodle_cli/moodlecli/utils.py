@@ -53,14 +53,7 @@ def course_bulk_input_csv_fieldnames():
 
 def course_bulk_outputput_csv_fieldnames():
     """Return array of fieldnames in output CSV for course bulk setup"""
-    return [
-        COURSE_BULK_CSV_INST_FNAME,
-        COURSE_BULK_CSV_INST_LNAME,
-        COURSE_BULK_CSV_INST_EMAIL,
-        COURSE_BULK_CSV_INST_AUTH,
-        COURSE_BULK_CSV_COURSE_NAME,
-        COURSE_BULK_CSV_COURSE_SHORTNAME,
-        COURSE_BULK_CSV_COURSE_CATEGORY,
+    return course_bulk_input_csv_fieldnames() + [
         COURSE_BULK_CSV_COURSE_ID,
         COURSE_BULK_CSV_COURSE_ENROLMENT_URL,
         COURSE_BULK_CSV_COURSE_ENROLMENT_KEY
