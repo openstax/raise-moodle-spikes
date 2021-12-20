@@ -142,6 +142,90 @@ def test_set_self_enrolment_method_key(mocker):
     )
 
 
+def test_get_user_by_email(mocker):
+    session_mock = mocker.Mock()
+    user_data = {"id": 111}
+    session_mock.get.return_value.json.return_value = {
+        "users": [user_data]
+    }
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    res = client.get_user_by_email("admin@acmeinc.com")
+    session_mock.get.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        params={
+            "criteria[0][key]": "email",
+            "criteria[0][value]": "admin@acmeinc.com",
+            "wsfunction": moodle.MOODLE_FUNC_GET_USERS,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+        }
+    )
+    assert res == user_data
+
+    # Check empty result path
+    session_mock.get.return_value.json.return_value = {
+        "users": []
+    }
+    res = client.get_user_by_email("admin@acmeinc.com")
+    assert res is None
+
+    # Check multiple users error path
+    session_mock.get.return_value.json.return_value = {
+        "users": [user_data, user_data]
+    }
+
+    with pytest.raises(Exception, match="Multiple users returned with email"):
+        client.get_user_by_email("admin@acmeinc.com")
+
+
+def test_create_user(mocker):
+    session_mock = mocker.Mock()
+    session_mock.post.return_value.json.return_value = [{}]
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    client.create_user("fname", "lname", "email", "oauth2")
+    session_mock.post.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        {
+            "users[0][username]": "email",
+            "users[0][email]": "email",
+            "users[0][firstname]": "fname",
+            "users[0][lastname]": "lname",
+            "users[0][auth]": "oauth2",
+            "wsfunction": moodle.MOODLE_FUNC_CREATE_USERS,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+        }
+    )
+
+    # Check that password is included for manual auth
+    client.create_user("fname", "lname", "email", "manual")
+    assert "users[0][password]" in session_mock.post.call_args[0][1]
+
+
+def test_enrol_user(mocker):
+    session_mock = mocker.Mock()
+    session_mock.post.return_value.json.return_value = [{}]
+    client = moodle.MoodleClient(
+        session_mock, TEST_MOODLE_URL, TEST_MOODLE_TOKEN
+    )
+    client.enrol_user(1, 2, 3)
+    session_mock.post.assert_called_once_with(
+        f"{TEST_MOODLE_URL}{moodle.MOODLE_WEBSERVICE_PATH}",
+        {
+            "enrolments[0][courseid]": 1,
+            "enrolments[0][userid]": 2,
+            "enrolments[0][roleid]": 3,
+            "wsfunction": moodle.MOODLE_FUNC_ENROL_USER,
+            "moodlewsrestformat": "json",
+            "wstoken": TEST_MOODLE_TOKEN
+        }
+    )
+
+
 def test_check_for_moodle_error(mocker):
     result_mock = mocker.Mock()
     result_mock.json.return_value = {

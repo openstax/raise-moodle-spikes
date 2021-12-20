@@ -1,7 +1,12 @@
+from . import utils
+
 MOODLE_WEBSERVICE_PATH = "/webservice/rest/server.php"
 
 MOODLE_FUNC_GET_COURSES = "core_course_get_courses"
+MOODLE_FUNC_CREATE_USERS = "core_user_create_users"
+MOODLE_FUNC_GET_USERS = "core_user_get_users"
 MOODLE_FUNC_DUPLICATE_COURSE = "core_course_duplicate_course"
+MOODLE_FUNC_ENROL_USER = "enrol_manual_enrol_users"
 MOODLE_FUNC_ENABLE_SELF_ENROLMENT_METHOD = \
     "local_raisecli_enable_self_enrolment_method"
 MOODLE_FUNC_GET_ROLE_BY_SHORTNAME = "local_raisecli_get_role_by_shortname"
@@ -63,6 +68,7 @@ def check_for_moodle_error(result):
 class MoodleClient:
     def __init__(self, session, moodle_url, moodle_token):
         self.session = session
+        self.moodle_url = moodle_url
         self.service_endpoint = f"{moodle_url}{MOODLE_WEBSERVICE_PATH}"
         self.token = moodle_token
 
@@ -134,3 +140,49 @@ class MoodleClient:
             "enrolkey": enrol_key
         }
         return self._post(MOODLE_FUNC_SET_SELF_ENROLMENT_METHOD_KEY, data)
+
+    def get_user_by_email(self, email):
+        data = {
+            "criteria": [{
+                "key": "email",
+                "value": email
+            }]
+        }
+        res = self._get(MOODLE_FUNC_GET_USERS, data)
+        user_data = res["users"]
+
+        if len(user_data) > 1:
+            raise Exception(f"Multiple users returned with email {email}")
+
+        if user_data:
+            return user_data[0]
+        else:
+            return None
+
+    def create_user(self, firstname, lastname, email, auth):
+        user_data = {
+            "username": email,
+            "firstname": firstname,
+            "lastname": lastname,
+            "email": email,
+            "auth": auth
+        }
+        # We set a password value if auth is manual so Moodle doesn't generate
+        # and email one to the user.
+        if auth == "manual":
+            user_data["password"] = utils.generate_password()
+        data = {
+            "users": [user_data]
+        }
+        res = self._post(MOODLE_FUNC_CREATE_USERS, data)
+        return res[0]
+
+    def enrol_user(self, course_id, user_id, role_id):
+        data = {
+            "enrolments": [{
+                "courseid": course_id,
+                "userid": user_id,
+                "roleid": role_id
+            }]
+        }
+        return self._post(MOODLE_FUNC_ENROL_USER, data)

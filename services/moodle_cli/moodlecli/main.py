@@ -1,8 +1,10 @@
 import os
 import json
+import csv
 import click
 import requests
 from .moodle import MoodleClient
+from . import utils
 
 
 CONTEXT_MOODLE_CLIENT_KEY = "MOODLE_CLIENT"
@@ -100,3 +102,48 @@ def set_self_enrolment_method_key(enrol_id, enrol_key):
     moodle = get_moodle_client()
     res = moodle.set_self_enrolment_method_key(enrol_id, enrol_key)
     click.echo(json.dumps(res, indent=4))
+
+
+@cli.command()
+@click.argument('output_csv', type=click.File(mode='w'))
+def course_bulk_csv(output_csv):
+    """Output an empty CSV template for course-bulk-setup"""
+    writer = csv.DictWriter(
+        output_csv,
+        utils.course_bulk_input_csv_fieldnames()
+    )
+    writer.writeheader()
+
+
+@cli.command()
+@click.argument('base_course_id')
+@click.argument('coursedata_csv', type=click.File(mode='r'))
+@click.argument('courseoutput_csv', type=click.File(mode='w'))
+def course_bulk_setup(base_course_id, coursedata_csv, courseoutput_csv):
+    """Bulk setup of courses using an existing base course"""
+    moodle = get_moodle_client()
+
+    # Query required role data from instance
+    # Note: The "teacher" shortname is the non-editing teacher role
+    teacher_role = moodle.get_role_by_shortname("teacher")
+    student_role = moodle.get_role_by_shortname("student")
+
+    updated_courses = []
+
+    course_reader = csv.DictReader(coursedata_csv)
+    for course in course_reader:
+        updated_course = utils.setup_duplicate_course(
+            moodle,
+            base_course_id,
+            course,
+            teacher_role["id"],
+            student_role["id"]
+        )
+        updated_courses.append(updated_course)
+
+    writer = csv.DictWriter(
+        courseoutput_csv,
+        utils.course_bulk_outputput_csv_fieldnames()
+    )
+    writer.writeheader()
+    writer.writerows(updated_courses)
