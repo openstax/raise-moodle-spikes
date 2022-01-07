@@ -1,10 +1,19 @@
 FROM moodlehq/moodle-php-apache:8.0
 
 ARG MOODLE_VERSION=v3.11.4
+ARG LOCAL_CODECHECKER_VERSION=v3.0.4
+ARG LOCAL_MOODLECHECK_VERSION=v1.0.9
+ARG TOOL_PLUGINSKEL_VERSION=1.5.3
+ARG LOCAL_RAISECLI_VERSION=2022010500
 
+# Install Moodle and plugins
 RUN rmdir /var/www/html
 RUN git clone --depth 1 https://github.com/moodle/moodle --branch $MOODLE_VERSION /var/www/html
-RUN rm -rf /var/www/html/.git
+RUN git clone --depth 1 https://github.com/moodlehq/moodle-local_codechecker.git --branch $LOCAL_CODECHECKER_VERSION /var/www/html/local/codechecker
+RUN git clone --depth 1 https://github.com/moodlehq/moodle-local_moodlecheck.git --branch $LOCAL_MOODLECHECK_VERSION /var/www/html/local/moodlecheck
+RUN git clone --depth 1 https://github.com/mudrd8mz/moodle-tool_pluginskel.git --branch $TOOL_PLUGINSKEL_VERSION /var/www/html/admin/tool/pluginskel
+RUN git clone --depth 1 https://github.com/openstax/moodle-local_raisecli.git --branch $LOCAL_RAISECLI_VERSION /var/www/html/local/raisecli
+RUN find /var/www/html/. -name .git | xargs rm -rf
 RUN chown -R www-data:www-data /var/www/html/
 
 RUN apt-get update && apt-get install -y cron
@@ -16,7 +25,6 @@ RUN chmod 644 /etc/cron.d/moodle
 
 COPY plugins/events /var/www/html/admin/tool/events
 COPY plugins/study /var/www/html/mod/study
-COPY plugins/raisecli /var/www/html/local/raisecli
 
 # TODO: Remove this nonsense once we've landed the code in the Moodle code repo
 # that we pull from above
