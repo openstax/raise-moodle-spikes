@@ -1,16 +1,16 @@
 import string
 import random
 
-COURSE_BULK_CSV_INST_FNAME = 'instructor_firstname'
-COURSE_BULK_CSV_INST_LNAME = 'instructor_lastname'
-COURSE_BULK_CSV_INST_EMAIL = 'instructor_email'
-COURSE_BULK_CSV_INST_AUTH = 'instructor_auth_type'
-COURSE_BULK_CSV_COURSE_NAME = 'course_name'
-COURSE_BULK_CSV_COURSE_SHORTNAME = 'course_shortname'
-COURSE_BULK_CSV_COURSE_CATEGORY = 'course_category'
-COURSE_BULK_CSV_COURSE_ID = "course_id"
-COURSE_BULK_CSV_COURSE_ENROLMENT_URL = "course_enrolment_url"
-COURSE_BULK_CSV_COURSE_ENROLMENT_KEY = "course_enrolment_key"
+CSV_INST_FNAME = 'instructor_firstname'
+CSV_INST_LNAME = 'instructor_lastname'
+CSV_INST_EMAIL = 'instructor_email'
+CSV_INST_AUTH = 'instructor_auth_type'
+CSV_COURSE_NAME = 'course_name'
+CSV_COURSE_SHORTNAME = 'course_shortname'
+CSV_COURSE_CATEGORY = 'course_category'
+CSV_COURSE_ID = "course_id"
+CSV_COURSE_ENROLMENT_URL = "course_enrolment_url"
+CSV_COURSE_ENROLMENT_KEY = "course_enrolment_key"
 
 
 def generate_password(length=12):
@@ -41,22 +41,22 @@ def course_bulk_input_csv_fieldnames():
     """Return array of fieldnames used / expected in input CSV for course
     bulk setup"""
     return [
-        COURSE_BULK_CSV_INST_FNAME,
-        COURSE_BULK_CSV_INST_LNAME,
-        COURSE_BULK_CSV_INST_EMAIL,
-        COURSE_BULK_CSV_INST_AUTH,
-        COURSE_BULK_CSV_COURSE_NAME,
-        COURSE_BULK_CSV_COURSE_SHORTNAME,
-        COURSE_BULK_CSV_COURSE_CATEGORY
+        CSV_INST_FNAME,
+        CSV_INST_LNAME,
+        CSV_INST_EMAIL,
+        CSV_INST_AUTH,
+        CSV_COURSE_NAME,
+        CSV_COURSE_SHORTNAME,
+        CSV_COURSE_CATEGORY
     ]
 
 
 def course_bulk_output_csv_fieldnames():
     """Return array of fieldnames in output CSV for course bulk setup"""
     return course_bulk_input_csv_fieldnames() + [
-        COURSE_BULK_CSV_COURSE_ID,
-        COURSE_BULK_CSV_COURSE_ENROLMENT_URL,
-        COURSE_BULK_CSV_COURSE_ENROLMENT_KEY
+        CSV_COURSE_ID,
+        CSV_COURSE_ENROLMENT_URL,
+        CSV_COURSE_ENROLMENT_KEY
     ]
 
 
@@ -67,25 +67,25 @@ def setup_duplicate_course(
     """Setup a new course using a base and data from bulk CSV"""
     # Retrieve or create teacher account
     existing_user = moodle_client.get_user_by_email(
-        coursedata[COURSE_BULK_CSV_INST_EMAIL]
+        coursedata[CSV_INST_EMAIL]
     )
     if existing_user:
         instructor_user_id = existing_user['id']
     else:
         new_user = moodle_client.create_user(
-            coursedata[COURSE_BULK_CSV_INST_FNAME],
-            coursedata[COURSE_BULK_CSV_INST_LNAME],
-            coursedata[COURSE_BULK_CSV_INST_EMAIL],
-            coursedata[COURSE_BULK_CSV_INST_AUTH]
+            coursedata[CSV_INST_FNAME],
+            coursedata[CSV_INST_LNAME],
+            coursedata[CSV_INST_EMAIL],
+            coursedata[CSV_INST_AUTH]
         )
         instructor_user_id = new_user["id"]
 
     # Create a duplicate course using the base course
     new_course = moodle_client.copy_course(
         base_course_id,
-        coursedata[COURSE_BULK_CSV_COURSE_NAME],
-        coursedata[COURSE_BULK_CSV_COURSE_SHORTNAME],
-        coursedata[COURSE_BULK_CSV_COURSE_CATEGORY]
+        coursedata[CSV_COURSE_NAME],
+        coursedata[CSV_COURSE_SHORTNAME],
+        coursedata[CSV_COURSE_CATEGORY]
     )
     new_course_id = new_course["id"]
 
@@ -117,9 +117,9 @@ def setup_duplicate_course(
     )
 
     # Return updated course dict adding course ID and enrolment URL / key
-    coursedata[COURSE_BULK_CSV_COURSE_ID] = new_course_id
-    coursedata[COURSE_BULK_CSV_COURSE_ENROLMENT_URL] = \
+    coursedata[CSV_COURSE_ID] = new_course_id
+    coursedata[CSV_COURSE_ENROLMENT_URL] = \
         moodle_client.get_course_enrolment_url(new_course_id)
-    coursedata[COURSE_BULK_CSV_COURSE_ENROLMENT_KEY] = enrolment_key
+    coursedata[CSV_COURSE_ENROLMENT_KEY] = enrolment_key
 
     return coursedata
