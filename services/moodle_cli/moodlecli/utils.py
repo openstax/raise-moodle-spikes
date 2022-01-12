@@ -5,6 +5,10 @@ CSV_INST_FNAME = 'instructor_firstname'
 CSV_INST_LNAME = 'instructor_lastname'
 CSV_INST_EMAIL = 'instructor_email'
 CSV_INST_AUTH = 'instructor_auth_type'
+CSV_USER_FNAME = 'user_firstname'
+CSV_USER_LNAME = 'user_lastname'
+CSV_USER_EMAIL = 'user_email'
+CSV_USER_AUTH = 'user_auth_type'
 CSV_COURSE_NAME = 'course_name'
 CSV_COURSE_SHORTNAME = 'course_shortname'
 CSV_COURSE_CATEGORY = 'course_category'
@@ -57,6 +61,16 @@ def course_bulk_output_csv_fieldnames():
         CSV_COURSE_ID,
         CSV_COURSE_ENROLMENT_URL,
         CSV_COURSE_ENROLMENT_KEY
+    ]
+
+
+def enrol_bulk_input_csv_fieldnames():
+    """Return array of fieldnames used in input CSV for enrol"""
+    return [
+        CSV_USER_FNAME,
+        CSV_USER_LNAME,
+        CSV_USER_EMAIL,
+        CSV_USER_AUTH
     ]
 
 
