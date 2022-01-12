@@ -143,7 +143,40 @@ def course_bulk_setup(base_course_id, coursedata_csv, courseoutput_csv):
 
     writer = csv.DictWriter(
         courseoutput_csv,
-        utils.course_bulk_outputput_csv_fieldnames()
+        utils.course_bulk_output_csv_fieldnames()
     )
     writer.writeheader()
     writer.writerows(updated_courses)
+
+
+@cli.command()
+@click.argument('output_csv', type=click.File(mode='w'))
+def enrol_bulk_csv(output_csv):
+    """Output an empty CSV template for enrol-bulk"""
+    writer = csv.DictWriter(
+        output_csv,
+        utils.enrol_bulk_input_csv_fieldnames()
+    )
+    writer.writeheader()
+
+
+@cli.command()
+@click.argument('course_id')
+@click.argument('role_shortname')
+@click.argument('userdata_csv', type=click.File(mode='r'))
+def enrol_bulk(course_id, role_shortname, userdata_csv):
+    """Bulk enrol users to course with role"""
+    moodle = get_moodle_client()
+
+    role = moodle.get_role_by_shortname(role_shortname)
+
+    user_reader = csv.DictReader(userdata_csv)
+    for user in user_reader:
+        user_id = utils.create_or_get_user(
+            moodle,
+            user[utils.CSV_USER_FNAME],
+            user[utils.CSV_USER_LNAME],
+            user[utils.CSV_USER_EMAIL],
+            user[utils.CSV_USER_AUTH]
+        )
+        moodle.enrol_user(course_id, user_id, role["id"])
