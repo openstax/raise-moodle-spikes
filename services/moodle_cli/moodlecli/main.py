@@ -143,7 +143,7 @@ def course_bulk_setup(base_course_id, coursedata_csv, courseoutput_csv):
 
     writer = csv.DictWriter(
         courseoutput_csv,
-        utils.course_bulk_outputput_csv_fieldnames()
+        utils.course_bulk_output_csv_fieldnames()
     )
     writer.writeheader()
     writer.writerows(updated_courses)

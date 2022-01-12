@@ -51,7 +51,7 @@ def course_bulk_input_csv_fieldnames():
     ]
 
 
-def course_bulk_outputput_csv_fieldnames():
+def course_bulk_output_csv_fieldnames():
     """Return array of fieldnames in output CSV for course bulk setup"""
     return course_bulk_input_csv_fieldnames() + [
         COURSE_BULK_CSV_COURSE_ID,
