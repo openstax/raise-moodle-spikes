@@ -60,25 +60,37 @@ def course_bulk_output_csv_fieldnames():
     ]
 
 
+def create_or_get_user(moodle_client, firstname, lastname, email, auth):
+    """Create a user account if it doesn't exist and return user ID"""
+    existing_user = moodle_client.get_user_by_email(
+        email
+    )
+    if existing_user:
+        user_id = existing_user['id']
+    else:
+        new_user = moodle_client.create_user(
+            firstname,
+            lastname,
+            email,
+            auth
+        )
+        user_id = new_user["id"]
+    return user_id
+
+
 def setup_duplicate_course(
     moodle_client, base_course_id, coursedata, instructor_role_id,
     student_role_id
 ):
     """Setup a new course using a base and data from bulk CSV"""
     # Retrieve or create teacher account
-    existing_user = moodle_client.get_user_by_email(
-        coursedata[CSV_INST_EMAIL]
+    instructor_user_id = create_or_get_user(
+        moodle_client,
+        coursedata[CSV_INST_FNAME],
+        coursedata[CSV_INST_LNAME],
+        coursedata[CSV_INST_EMAIL],
+        coursedata[CSV_INST_AUTH]
     )
-    if existing_user:
-        instructor_user_id = existing_user['id']
-    else:
-        new_user = moodle_client.create_user(
-            coursedata[CSV_INST_FNAME],
-            coursedata[CSV_INST_LNAME],
-            coursedata[CSV_INST_EMAIL],
-            coursedata[CSV_INST_AUTH]
-        )
-        instructor_user_id = new_user["id"]
 
     # Create a duplicate course using the base course
     new_course = moodle_client.copy_course(
