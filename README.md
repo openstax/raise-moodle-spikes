@@ -114,8 +114,17 @@ $ docker-compose restart moodle
 
 ### Access mail sent by Moodle
 
-It's sometimes useful to be able see to the emails Moodle is trying to send to users. The environments in this repo configure [MailHog](https://github.com/mailhog/MailHog) so developers can inspect these emails without a real SMTP setup. In a local docker environment, you can navigate to [http://localhost:8025](http://localhost:8025) to see the MailHog web interface. If you have `enableMailhog` enabled for a Kubernetes deployment, the interface can be opened on your development machine by using `kubectl` to port forward:
+It's sometimes useful to be able to see the emails Moodle is trying to send to users. The environments in this repo configure [MailHog](https://github.com/mailhog/MailHog) so developers can inspect these emails without a real SMTP setup. In a local docker environment, you can navigate to [http://localhost:8025](http://localhost:8025) to see the MailHog web interface. If you have `enableMailhog` enabled for a Kubernetes deployment, the interface can be opened on your development machine by using `kubectl` to port forward:
 
 ```bash
 $ kubectl port-forward $(kubectl get po -l "app=raise-spikes-mailhog-<deploymentName>" -o name) 8025:8025
+```
+
+### Running phpunit tests
+
+Tests can be invoked after setting up `phpunit`:
+
+```bash
+$ docker-compose exec moodle php admin/tool/phpunit/cli/init.php
+$ docker-compose exec moodle vendor/bin/phpunit --filter <testcase>
 ```
