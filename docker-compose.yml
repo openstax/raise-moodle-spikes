@@ -8,10 +8,6 @@ services:
       - moodledata:/var/www/moodledata
       - ./plugins/events:/var/www/html/admin/tool/events
       - ./plugins/study:/var/www/html/mod/study
-      - ./plugins/clever_oauth2/service/clever.php:/var/www/html/lib/classes/oauth2/service/clever.php
-      - ./plugins/clever_oauth2/client/clever.php:/var/www/html/lib/classes/oauth2/client/clever.php
-      - ./plugins/clever_oauth2/tool/issuers.php:/var/www/html/admin/tool/oauth2/issuers.php
-      - ./plugins/clever_oauth2/tool/tool_oauth2.php:/var/www/html/admin/tool/oauth2/lang/en/tool_oauth2.php
     networks:
       - raisemoodle
     environment:
