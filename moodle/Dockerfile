@@ -1,4 +1,4 @@
-FROM moodlehq/moodle-php-apache:8.0
+FROM moodlehq/moodle-php-apache:8.0 as base
 
 ARG MOODLE_VERSION=v3.11.5
 ARG LOCAL_CODECHECKER_VERSION=v3.0.6
@@ -25,3 +25,11 @@ RUN chmod 644 /etc/cron.d/moodle
 
 COPY plugins/events /var/www/html/admin/tool/events
 COPY plugins/study /var/www/html/mod/study
+
+FROM base as dbg
+
+RUN pecl install xdebug
+COPY moodle/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+RUN docker-php-ext-enable xdebug
+
+FROM base as dev

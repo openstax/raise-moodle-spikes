@@ -4,6 +4,7 @@ services:
     build:
       context: .
       dockerfile: moodle/Dockerfile
+      target: ${MOODLE_TARGET:-dev}
     volumes:
       - moodledata:/var/www/moodledata
       - ./plugins/events:/var/www/html/admin/tool/events
@@ -23,6 +24,8 @@ services:
       - 8000:80
     depends_on:
       - postgres
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   cron:
     build:
       context: .

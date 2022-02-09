@@ -77,18 +77,8 @@ $ kube port-forward $(kubectl get po -l "app=raise-spikes-moodle-<deploymentName
 You can configure your local development environment to debug Moodle in VScode using the following steps:
 
 1. Install [xdebug](https://xdebug.org/) in your environment
-2. Add the following to `docker-compose.yml` so the `moodle` container can resolve `host.docker.internal` (this may only be necessary on Linux):
-
-```patch
-       - 8000:80
-     depends_on:
-       - postgres
-+    extra_hosts:
-+      - "host.docker.internal:host-gateway"
-```
-
-3. Install the [php-debug](https://marketplace.visualstudio.com/items?itemName=felixfbecker.php-debug) extension in VS Code
-4. Create a `launch.json` with an appropriate `pathMappings` if you want to set break points in the editor:
+2. Install the [php-debug](https://marketplace.visualstudio.com/items?itemName=felixfbecker.php-debug) extension in VS Code
+3. Create a `launch.json` with an appropriate `pathMappings` if you want to set break points in the editor:
 
 ```json
 {
@@ -101,15 +91,11 @@ You can configure your local development environment to debug Moodle in VScode u
     }
 }
 ```
-5. Setup `moodle` container for debugging:
+4. Setup `moodle` container for debugging:
 
 ```bash
-$ docker-compose exec moodle pecl install xdebug
-$ docker-compose exec moodle /bin/bash -c 'echo "xdebug.mode = debug" > /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini'
-$ docker-compose exec moodle /bin/bash -c 'echo "xdebug.client_host = host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini'
-$ docker-compose exec moodle /bin/bash -c 'echo "xdebug.start_with_request = yes" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini'
-$ docker-compose exec moodle docker-php-ext-enable xdebug
-$ docker-compose restart moodle
+$ MOODLE_TARGET=dbg docker-compose build
+$ docker-compose up -d
 ```
 
 ### Access mail sent by Moodle
