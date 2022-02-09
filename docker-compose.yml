@@ -23,6 +23,8 @@ services:
       - 8000:80
     depends_on:
       - postgres
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   cron:
     build:
       context: .
