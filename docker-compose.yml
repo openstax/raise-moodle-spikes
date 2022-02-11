@@ -8,7 +8,6 @@ services:
       - moodledata:/var/www/moodledata
       - ./plugins/events:/var/www/html/admin/tool/events
       - ./plugins/study:/var/www/html/mod/study
-      - ../moodle/course:/var/www/html/course
     networks:
       - raisemoodle
     environment:
