@@ -43,9 +43,9 @@ Before deploying, you will need to push your dev images to ECR:
 $ export REPOHOST=<account>.dkr.ecr.<region>.amazonaws.com
 $ export TAG=<tagvalue>
 $ aws ecr get-login-password | docker login --username AWS --password-stdin $REPOHOST
-$ docker build . -f moodle/Dockerfile -t $REPOHOST/moodle:$TAG
+$ docker build . --platform=linux/amd64 -f moodle/Dockerfile -t $REPOHOST/moodle:$TAG
 $ docker push $REPOHOST/moodle:$TAG
-$ docker build services/eventsapi/. -t $REPOHOST/moodle-eventsapi:$TAG
+$ docker build services/eventsapi/. --platform=linux/amd64 -t $REPOHOST/moodle-eventsapi:$TAG
 $ docker push $REPOHOST/moodle-eventsapi:$TAG
 ```
 
