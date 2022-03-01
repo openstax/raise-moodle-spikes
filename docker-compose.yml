@@ -5,13 +5,13 @@ services:
       context: .
       dockerfile: moodle/Dockerfile
       target: ${MOODLE_TARGET:-dev}
-    volumes:
+    volumes: &moodlevolumes
       - moodledata:/var/www/moodledata
       - ./plugins/events:/var/www/html/admin/tool/events
       - ./plugins/study:/var/www/html/mod/study
     networks:
       - raisemoodle
-    environment:
+    environment: &moodleenv
       MOODLE_DOCKER_DBHOST: postgres
       MOODLE_DOCKER_DBNAME: $POSTGRES_DB
       MOODLE_DOCKER_DBUSER: $POSTGRES_USER
@@ -31,17 +31,10 @@ services:
       context: .
       dockerfile: moodle/Dockerfile
     command: /bin/bash -c "printenv | grep MOODLE > /etc/environment; cron -f"
-    volumes:
-      - moodledata:/var/www/moodledata
+    volumes: *moodlevolumes
     networks:
       - raisemoodle
-    environment:
-      MOODLE_DOCKER_DBHOST: postgres
-      MOODLE_DOCKER_DBNAME: $POSTGRES_DB
-      MOODLE_DOCKER_DBUSER: $POSTGRES_USER
-      MOODLE_DOCKER_DBPASS: $POSTGRES_PASSWORD
-      MOODLE_DOCKER_DATAROOT: /var/www/moodledata
-      MOODLE_DOCKER_SMTPHOST: mailhog:1025
+    environment: *moodleenv
     depends_on:
       - moodle
   eventsapi:
