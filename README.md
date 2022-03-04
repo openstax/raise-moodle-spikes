@@ -13,6 +13,7 @@ The following table describes the directories in this repo:
 | `plugins` | Moodle plugins |
 | `services` | Ancillary services used to implement / demonstrate functionality |
 | `demos` | Miscellaneous code / files used for demos |
+| `scripts` | Utility / helper scripts |
 
 ## How Tos
 
@@ -22,7 +23,7 @@ You can use the following commands to get a basic local environment running usin
 
 ```bash
 $ docker-compose up -d
-$ docker-compose exec moodle php admin/cli/install_database.php --agree-license --fullname="Dev site" --shortname="dev_site" --summary="Dev moodle site" --adminpass="admin" --adminemail="admin@acmeinc.com"
+$ docker-compose exec moodle php admin/cli/install_database.php --agree-license --fullname="Local Dev" --shortname="Local Dev" --summary="Local Dev" --adminpass="admin" --adminemail="admin@acmeinc.com"
 ```
 
 The site will then be available at [http://localhost:8000/](http://localhost:8000/).
@@ -113,4 +114,16 @@ Tests can be invoked after setting up `phpunit`:
 ```bash
 $ docker-compose exec moodle php admin/tool/phpunit/cli/init.php
 $ docker-compose exec moodle vendor/bin/phpunit --filter <testcase>
+```
+
+### Creating a Moodle backup file for git storage
+
+The environment in this repo can be used to create a `.mbz` file for git storage of course backup data from an arbritrary instance. All this script really does is load the content in a clean database and re-export using automated steps for consistency.
+
+**NOTE:** Running this script will delete all of the data in your local Moodle instance.
+
+Example steps:
+
+```bash
+$ ./scripts/gitify_mbz.sh -i input.mbz -o output.mbz
 ```
