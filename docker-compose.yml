@@ -54,6 +54,13 @@ services:
     environment:
       - EVENTS_S3_BUCKET
       - EVENTS_S3_PREFIX
+  contentapi:
+    build:
+      context: services/contentapi
+    networks:
+      - raisemoodle
+    ports:
+      - 8800:80 # Only exposed for developer convenience
   postgres:
     image: "postgres:13"
     volumes:
