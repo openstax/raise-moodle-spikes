@@ -9,6 +9,7 @@ services:
       - moodledata:/var/www/moodledata
       - ./plugins/events:/var/www/html/admin/tool/events
       - ./plugins/study:/var/www/html/mod/study
+      - ./plugins/content:/var/www/html/filter/content
       - .:/repo
     networks:
       - raisemoodle
