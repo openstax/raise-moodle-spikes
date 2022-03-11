@@ -13,7 +13,6 @@ class ContentData(BaseModel):
 
 @app.get("/contents/{content_id}", response_model=ContentData)
 async def create_event(content_id):
-    content = f"<div><p>This is content for ID {content_id}</p>" \
-        "<p>Math: \\( \\frac{1}{2} \\)</p></div>"
+    content = f"<div><p>This is content for ID {content_id}</p></div>"
     data = ContentData(id=content_id, content=content)
     return data
