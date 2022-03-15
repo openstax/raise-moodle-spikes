@@ -57,7 +57,7 @@ services:
     networks:
       - raisemoodle
     ports:
-      - 8800:80 # Only exposed for developer convenience
+      - 8800:80
   postgres:
     image: "postgres:13"
     volumes:
