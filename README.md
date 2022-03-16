@@ -99,6 +99,13 @@ $ MOODLE_TARGET=dbg docker-compose build
 $ docker-compose up -d
 ```
 
+#### Moodle settings for debugging
+
+If you are debugging / developing, you may want to modify the following settings within Moodle as well:
+
+* `Site Administration -> Development -> Debugging`: Set "Debug messages" to "Developer"
+* `Site Administration -> Appearance -> AJAX and Javascript`: Clear the flag for "Cache Javascript"
+
 ### Access mail sent by Moodle
 
 It's sometimes useful to be able to see the emails Moodle is trying to send to users. The environments in this repo configure [MailHog](https://github.com/mailhog/MailHog) so developers can inspect these emails without a real SMTP setup. In a local docker environment, you can navigate to [http://localhost:8025](http://localhost:8025) to see the MailHog web interface. If you have `enableMailhog` enabled for a Kubernetes deployment, the interface can be opened on your development machine by using `kubectl` to port forward:
