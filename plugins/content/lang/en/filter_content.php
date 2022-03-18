@@ -1,3 +1,3 @@
 <?php
 
-$string['filtername'] = 'Content';
+$string['filtername'] = 'OSX Content';
