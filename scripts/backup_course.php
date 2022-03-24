@@ -70,6 +70,14 @@ $bc = new backup_controller(backup::TYPE_1COURSE, $course->id, backup::FORMAT_MO
                             backup::INTERACTIVE_YES, backup::MODE_GENERAL, $admin->id);
 // Set the default filename.
 $bc->get_plan()->get_setting('users')->set_value('0');
+$bc->get_plan()->get_setting('files')->set_value('0');
+$bc->get_plan()->get_setting('filters')->set_value('0');
+$bc->get_plan()->get_setting('calendarevents')->set_value('0');
+$bc->get_plan()->get_setting('groups')->set_value('0');
+$bc->get_plan()->get_setting('competencies')->set_value('0');
+$bc->get_plan()->get_setting('customfield')->set_value('0');
+$bc->get_plan()->get_setting('contentbankcontent')->set_value('0');
+$bc->get_plan()->get_setting('legacyfiles')->set_value('0');
 $format = $bc->get_format();
 $type = $bc->get_type();
 $id = $bc->get_id();
