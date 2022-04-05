@@ -37,4 +37,4 @@ docker-compose exec moodle php /repo/scripts/restore_backup_as_admin.php --file=
 rm "$TMP_MBZ"
 # Run our slightly modified backup script instead of the one included with Moodle
 docker-compose exec moodle php /repo/scripts/backup_course.php --courseid=2 --destination=/repo/
-find . -name "backup-moodle2-course-2-*.mbz" -print0 | xargs --null -I filename mv filename "$output_file"
+find . -name "backup-moodle2-course-2-*.mbz" -print0 | xargs -0 -I filename mv filename "$output_file"
