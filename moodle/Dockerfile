@@ -28,7 +28,7 @@ COPY plugins/study /var/www/html/mod/study
 
 FROM base as dbg
 
-RUN pecl install xdebug
+RUN pecl update-channels && pecl install xdebug
 COPY moodle/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 RUN docker-php-ext-enable xdebug
 
