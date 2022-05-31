@@ -1,0 +1,27 @@
+version: 0.2
+
+env:
+  shell: bash
+  secrets-manager:
+    DOCKERHUB_USERNAME: "dockerhub:username"
+    DOCKERHUB_TOKEN: "dockerhub:token"
+
+phases:
+  pre_build:
+    commands:
+      - echo $DOCKERHUB_TOKEN | docker login --username $DOCKERHUB_USERNAME --password-stdin
+      - export IMAGE_NAME=$AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME
+      - export IMAGE_TAG=${COMMIT_ID:0:8}
+      - echo $IMAGE_NAME > moodle-image-name.txt
+      - echo $IMAGE_TAG > moodle-image-tag.txt
+  build:
+    commands:
+      - docker build . -f moodle/Dockerfile -t $IMAGE_NAME:$IMAGE_TAG
+  post_build:
+    commands:
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - docker push $IMAGE_NAME:$IMAGE_TAG
+artifacts:
+  files:
+    - moodle-image-name.txt
+    - moodle-image-tag.txt
