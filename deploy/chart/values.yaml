@@ -15,7 +15,7 @@ dbStorageGb: 1
 moodleStorageGb: 1
 moodleDataRoot: "/var/www/moodledata"
 moodleWebRoot: "http://localhost:8888"
-enableEventsApi: true
+enableEventsApi: false
 enableMailhog: true
 
 # These values should be set if you want data to be stored in S3 vs logged
