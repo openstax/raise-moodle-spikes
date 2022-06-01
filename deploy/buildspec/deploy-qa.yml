@@ -1,0 +1,32 @@
+version: 0.2
+
+env:
+  shell: bash
+  secrets-manager:
+    SLACK_WEBHOOKURL: "slack:k12stream"
+
+phases:
+  install:
+    commands:
+      - curl -L https://get.helm.sh/helm-v3.8.2-linux-amd64.tar.gz | tar -xvz
+      - mv linux-amd64/helm ./helm
+      - curl -L -o yq "https://github.com/mikefarah/yq/releases/download/v4.25.2/yq_linux_amd64"
+      - chmod +x ./helm ./yq
+      - export PATH=$PWD:$PATH
+  pre_build:
+    commands:
+      - aws eks update-kubeconfig --name $K8S_CLUSTER_NAME
+      - export MOODLE_IMAGE_NAME=$(cat $CODEBUILD_SRC_DIR_moodle_build_output/moodle-image-name.txt)
+      - export MOODLE_IMAGE_TAG=$(cat $CODEBUILD_SRC_DIR_moodle_build_output/moodle-image-tag.txt)
+      - export MOODLE_INSTANCE="qa.raiselearning.org"
+      - export MOODLE_URL="https://$MOODLE_INSTANCE"
+      - touch ./values.yaml
+      - yq e -i '.deploymentName="qa"' ./values.yaml
+      - yq e -i '.moodleWebRoot=strenv(MOODLE_URL)' ./values.yaml
+      - yq e -i '.moodleImage.name=strenv(MOODLE_IMAGE_NAME)' ./values.yaml
+      - yq e -i '.moodleImage.tag=strenv(MOODLE_IMAGE_TAG)' ./values.yaml
+  build:
+    commands:
+      - helm upgrade --install -f ./values.yaml $MOODLE_INSTANCE deploy/chart/
+      - export SLACK_MESSAGE="Deployment to $MOODLE_URL completed successfully for commit $COMMIT_ID"
+      - "curl -X POST -H 'Content-type: application/json' --data '{\"text\":\"'\"$SLACK_MESSAGE\"'\"}' $SLACK_WEBHOOKURL"
