@@ -15,6 +15,8 @@ services:
     ports:
       - "9092:9092"
     hostname: kafka
+    depends_on:
+      - zookeeper
     environment:
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_ADVERTISED_LISTENERS: INSIDE://:29092,OUTSIDE://localhost:9092
@@ -28,6 +30,8 @@ services:
 
   redpanda:
     image: docker.redpanda.com/vectorized/console:master-cb51d72
+    depends_on:
+      - kafka
     environment:
       KAFKA_BROKERS: "kafka:29092"
     ports:
