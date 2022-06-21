@@ -3,8 +3,11 @@ version: "3.8"
 services:
   zookeeper:
     image: zookeeper:3.8
+    volumes:
+      - zkdata:/data
+      - zkdatalog:/datalog
     ports:
-      - "2181:2181"
+      - 2181:2181
     networks:
       - raisemoodle
     profiles:
@@ -12,8 +15,10 @@ services:
 
   kafka:
     image: wurstmeister/kafka:2.13-2.8.1 # This tag is <scala version>-<kafka version>
+    volumes:
+      - kafkadata:/kafka/kafka-logs-kafka
     ports:
-      - "9092:9092"
+      - 9092:9092
     hostname: kafka
     depends_on:
       - zookeeper
@@ -35,8 +40,13 @@ services:
     environment:
       KAFKA_BROKERS: "kafka:29092"
     ports:
-    - 8080:8080
+      - 8080:8080
     networks:
       - raisemoodle
     profiles:
       - kafka
+
+volumes:
+  zkdata:
+  zkdatalog:
+  kafkadata:
