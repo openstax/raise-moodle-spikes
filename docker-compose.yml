@@ -10,6 +10,7 @@ services:
       - ./plugins/events:/var/www/html/admin/tool/events
       - ./plugins/study:/var/www/html/mod/study
       - ./plugins/content:/var/www/html/filter/content
+      - ./plugins/direct_events_plugin:/var/www/html/local/direct
       - .:/repo
     networks:
       - raisemoodle
