@@ -1,4 +1,5 @@
-from typing import Optional
+from tokenize import String
+from typing import Literal, Union
 from fastapi import FastAPI
 from pydantic import BaseModel
 import aioboto3
@@ -12,15 +13,37 @@ app = FastAPI(
     title="RAISE Spikes API"
 )
 
-
-class Event(BaseModel):
+class LessonContentPageViewedEvent(BaseModel):
+    eventname: Literal['\\mod_lesson\\event\\content_page_viewed']
     username: str
-    eventname: str
     timestamp: int
     course_name: str
     lesson_name: str
-    page_title: Optional[str]
-    grade: Optional[str]
+    page_title: str
+
+
+class UserGradedEvent(BaseModel):
+    eventname: Literal['\\core\\event\\user_graded']
+    username: str
+    timestamp: int
+    course_name: str
+    lesson_name: str
+    grade: str
+
+
+
+class ContentLoadedEvent(BaseModel):
+    eventname: Literal['content_loaded']
+    user_id: str
+    content_id: str
+    timestamp: int
+
+
+Event = Union[
+    LessonContentPageViewedEvent,
+    UserGradedEvent,
+    ContentLoadedEvent
+]
 
 
 @app.post("/events", status_code=201)

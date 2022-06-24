@@ -19,7 +19,7 @@ $services = array(
 
   $functions = array(
     'local_direct_event_handler' => array(         //web service function name
-        'classname'   => 'local_direct_sender',  //class containing the external function OR namespaced class in classes/external/XXXX.php
+        'classname'   => 'local_direct_external',  //class containing the external function OR namespaced class in classes/external/XXXX.php
         'methodname'  => 'process_event',          //external function name                                                   // defaults to the service's externalib.php
         'description' => 'Sends event data to the API Endpoint',    //human readable description of the web service function
         'type'        => 'write',                  //database rights of the web service function (read, write)
