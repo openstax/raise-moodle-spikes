@@ -1,4 +1,3 @@
-from tokenize import String
 from typing import Literal, Union
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -12,6 +11,7 @@ EVENTS_S3_PREFIX = os.getenv("EVENTS_S3_PREFIX")
 app = FastAPI(
     title="RAISE Spikes API"
 )
+
 
 class LessonContentPageViewedEvent(BaseModel):
     eventname: Literal['\\mod_lesson\\event\\content_page_viewed']
@@ -29,7 +29,6 @@ class UserGradedEvent(BaseModel):
     course_name: str
     lesson_name: str
     grade: str
-
 
 
 class ContentLoadedEvent(BaseModel):
