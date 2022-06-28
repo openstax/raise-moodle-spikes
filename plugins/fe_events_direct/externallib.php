@@ -50,7 +50,7 @@ class local_fe_events_direct_external extends external_api {
      * Forward content_loaded event to EventsAPI.
      *
      * @param str $contentid
-     * @return array empty array 
+     * @return array empty array
      */
     public static function process_content_loaded_event($contentid) {
         global $USER;
