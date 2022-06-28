@@ -6,7 +6,7 @@ This exists in opposition to `./plugins/fe_events_moodle` which is similar but l
 
 ## Testing with Raise-MoodleCLI
 
-The simplest way to test this plugin is to open up the raise-moodlecli tool that can be found at https://github.com/openstax/raise-moodlecli/tree/k12-173/spike-code. This CLI contains a command - 'log-event-manually direct' which will exercise the AJAX endpoint with a phoney event. 
+The simplest way to test this plugin is to open up the raise-moodlecli tool that can be found at https://github.com/openstax/raise-moodlecli. This CLI contains a command - 'log-event-manually direct' which will exercise the AJAX endpoint with a phoney event. 
 
 The CLI needs two env variables set before it can find your moodle instance MOODLE_URL - the url of your moodle instance, and MOODLE_TOKEN - a valid token for using the endpoint. (see below)
 
