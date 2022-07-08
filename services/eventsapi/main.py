@@ -1,17 +1,21 @@
 from typing import Literal, Union
 from fastapi import FastAPI
 from pydantic import BaseModel
+from aiokafka import AIOKafkaProducer
+import asyncio
 import aioboto3
 import uuid
 import os
 
 EVENTS_S3_BUCKET = os.getenv("EVENTS_S3_BUCKET")
 EVENTS_S3_PREFIX = os.getenv("EVENTS_S3_PREFIX")
+KAFKA_SERVER = "localhost:9092"
+KAFKA_TOPIC = "eventapi"
+loop = asyncio.get_event_loop()
 
 app = FastAPI(
     title="RAISE Spikes API"
 )
-
 
 class LessonContentPageViewedEvent(BaseModel):
     eventname: Literal['\\mod_lesson\\event\\content_page_viewed']
@@ -44,7 +48,6 @@ Event = Union[
     ContentLoadedEvent
 ]
 
-
 @app.post("/events", status_code=201)
 async def create_event(event: Event):
     # Depending on settings, store data to S3 or just log
@@ -58,3 +61,10 @@ async def create_event(event: Event):
             )
     else:
         print(f"Received event: {event.json()}")
+    # check env variable 
+    producer = AIOKafkaProducer(loop=loop, bootstrap_servers=KAFKA_SERVER)
+    await producer.start()
+    try:
+        await producer.send_and_wait(KAFKA_TOPIC, event.json())
+    finally:
+        await producer.stop()
