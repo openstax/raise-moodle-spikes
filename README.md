@@ -28,6 +28,12 @@ $ docker-compose exec moodle php admin/cli/install_database.php --agree-license 
 
 The site will then be available at [http://localhost:8000/](http://localhost:8000/).
 
+If you want to deploy `kafka` and related services you can include `--profile kafka` to the `docker-compose` invocation (they're not enabled by default to optimize for the current common case):
+
+```bash
+$ docker-compose --profile kafka up -d
+```
+
 ### Debugging in a local environment
 
 You can configure your local development environment to debug Moodle in VScode using the following steps:
