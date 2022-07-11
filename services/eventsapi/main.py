@@ -1,17 +1,19 @@
 from typing import Literal, Union
 from fastapi import FastAPI
 from pydantic import BaseModel
-from aiokafka import AIOKafkaProducer
-import asyncio
+from kafka import KafkaProducer
 import aioboto3
 import uuid
 import os
 
 EVENTS_S3_BUCKET = os.getenv("EVENTS_S3_BUCKET")
 EVENTS_S3_PREFIX = os.getenv("EVENTS_S3_PREFIX")
+KAFKA_LISTENER = os.getenv("KAFKA_LISTENERS")
+
 KAFKA_SERVER = "localhost:9092"
-KAFKA_TOPIC = "eventapi"
-loop = asyncio.get_event_loop()
+producer = KafkaProducer(bootstrap_servers='localhost:9092', api_version=(2, 8, 1)
+)
+KAFKA_TOPIC = "eventsapi"
 
 app = FastAPI(
     title="RAISE Spikes API"
@@ -61,10 +63,8 @@ async def create_event(event: Event):
             )
     else:
         print(f"Received event: {event.json()}")
+        if KAFKA_LISTENER:
+            print("KAFKA PRODUCER REACHED!")
     # check env variable 
-    producer = AIOKafkaProducer(loop=loop, bootstrap_servers=KAFKA_SERVER)
-    await producer.start()
-    try:
-        await producer.send_and_wait(KAFKA_TOPIC, event.json())
-    finally:
-        await producer.stop()
+    if KAFKA_LISTENER:
+        producer.send(KAFKA_TOPIC, b'some_message_bytes')
