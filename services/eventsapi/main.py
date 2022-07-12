@@ -1,5 +1,6 @@
 from typing import Literal, Union
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import aioboto3
 import uuid
@@ -11,6 +12,17 @@ EVENTS_S3_PREFIX = os.getenv("EVENTS_S3_PREFIX")
 app = FastAPI(
     title="RAISE Spikes API"
 )
+
+CORS_ALLOWED_ORIGINS = os.getenv(
+    "CORS_ALLOWED_ORIGINS"
+)
+if CORS_ALLOWED_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=CORS_ALLOWED_ORIGINS,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
 
 
 class LessonContentPageViewedEvent(BaseModel):
