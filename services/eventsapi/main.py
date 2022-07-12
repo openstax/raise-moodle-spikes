@@ -5,14 +5,15 @@ from kafka import KafkaProducer
 import aioboto3
 import uuid
 import os
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 
 EVENTS_S3_BUCKET = os.getenv("EVENTS_S3_BUCKET")
 EVENTS_S3_PREFIX = os.getenv("EVENTS_S3_PREFIX")
-KAFKA_LISTENER = os.getenv("KAFKA_LISTENERS")
+KAFKA_LISTENER = os.getenv("KAFKA_ADVERTISED_LISTENERS")
 
 KAFKA_SERVER = "localhost:9092"
-producer = KafkaProducer(bootstrap_servers='localhost:9092', api_version=(2, 8, 1)
-)
 KAFKA_TOPIC = "eventsapi"
 
 app = FastAPI(
@@ -63,8 +64,10 @@ async def create_event(event: Event):
             )
     else:
         print(f"Received event: {event.json()}")
-        if KAFKA_LISTENER:
-            print("KAFKA PRODUCER REACHED!")
-    # check env variable 
-    if KAFKA_LISTENER:
-        producer.send(KAFKA_TOPIC, b'some_message_bytes')
+
+    #ignoring case where I need to check kafka env variable for now. 
+    
+    producer = KafkaProducer( bootstrap_servers=KAFKA_SERVER, api_version=(2, 0, 2))
+    producer.send(KAFKA_TOPIC, b'Some message')
+
+    producer.close()
