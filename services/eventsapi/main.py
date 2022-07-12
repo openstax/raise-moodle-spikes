@@ -1,19 +1,19 @@
+from asyncio import events
 from typing import Literal, Union
 from fastapi import FastAPI
 from pydantic import BaseModel
 from kafka import KafkaProducer
 import aioboto3
+import json
 import uuid
 import os
-import logging
-logging.basicConfig(level=logging.DEBUG)
 
 
 EVENTS_S3_BUCKET = os.getenv("EVENTS_S3_BUCKET")
 EVENTS_S3_PREFIX = os.getenv("EVENTS_S3_PREFIX")
 KAFKA_LISTENER = os.getenv("KAFKA_ADVERTISED_LISTENERS")
 
-KAFKA_SERVER = "localhost:9092"
+KAFKA_SERVER = "kafka:29092"
 KAFKA_TOPIC = "eventsapi"
 
 app = FastAPI(
@@ -66,8 +66,8 @@ async def create_event(event: Event):
         print(f"Received event: {event.json()}")
 
     #ignoring case where I need to check kafka env variable for now. 
-    
+
     producer = KafkaProducer( bootstrap_servers=KAFKA_SERVER, api_version=(2, 0, 2))
-    producer.send(KAFKA_TOPIC, b'Some message')
+    producer.send(KAFKA_TOPIC, event.json().encode('utf-8'))
 
     producer.close()
