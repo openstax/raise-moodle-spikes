@@ -23,5 +23,5 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'Direct to EventAPI';
-$string['pluginname_help'] = 'Event testing straight to EventAPI';
+$string['pluginname'] = 'Direct to Moodle';
+$string['pluginname_help'] = 'Event testing to Moodle';
