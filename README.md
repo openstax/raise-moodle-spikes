@@ -28,7 +28,8 @@ $ docker-compose exec moodle php admin/cli/install_database.php --agree-license 
 
 The site will then be available at [http://localhost:8000/](http://localhost:8000/).
 
-If you want to deploy `kafka` and related services you can use the command (these services are separated to optimize for the current common case):
+You can use the following command if you want to deploy `kafka` and related services
+(These services are separated to optimize for the current common case):
 
 ```bash
 $ docker-compose -f docker-compose.yml -f docker-compose.kafka.yml up -d 
