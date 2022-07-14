@@ -19,8 +19,6 @@ app = FastAPI(
     title="RAISE Spikes API"
 )
 
-<<<<<<< HEAD
-=======
 CORS_ALLOWED_ORIGINS = os.getenv(
     "CORS_ALLOWED_ORIGINS"
 )
@@ -33,7 +31,6 @@ if CORS_ALLOWED_ORIGINS:
     )
 
 
->>>>>>> main
 class LessonContentPageViewedEvent(BaseModel):
     eventname: Literal['\\mod_lesson\\event\\content_page_viewed']
     username: str
