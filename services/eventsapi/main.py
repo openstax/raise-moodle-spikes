@@ -4,14 +4,13 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from kafka import KafkaProducer
 import aioboto3
-import json
 import uuid
 import os
 
 
 EVENTS_S3_BUCKET = os.getenv("EVENTS_S3_BUCKET")
 EVENTS_S3_PREFIX = os.getenv("EVENTS_S3_PREFIX")
-KAFKA_LISTENER = os.getenv("KAFKA_ADVERTISED_LISTENERS")
+KAFKA_BROKERS = os.getenv("KAFKA_BROKERS")
 
 KAFKA_SERVER = "kafka:29092"
 KAFKA_TOPIC = "eventsapi"
@@ -65,9 +64,8 @@ async def create_event(event: Event):
     else:
         print(f"Received event: {event.json()}")
 
-    #ignoring case where I need to check kafka env variable for now. 
+    if KAFKA_BROKERS:
+        producer = KafkaProducer( bootstrap_servers=KAFKA_SERVER, api_version=(2, 0, 2))
+        producer.send(KAFKA_TOPIC, event.json().encode('utf-8'))
 
-    producer = KafkaProducer( bootstrap_servers=KAFKA_SERVER, api_version=(2, 0, 2))
-    producer.send(KAFKA_TOPIC, event.json().encode('utf-8'))
-
-    producer.close()
+        producer.close()

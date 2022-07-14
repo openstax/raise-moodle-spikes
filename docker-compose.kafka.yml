@@ -10,8 +10,6 @@ services:
       - 2181:2181
     networks:
       - raisemoodle
-    profiles:
-      - kafka
 
   kafka:
     image: wurstmeister/kafka:2.13-2.8.1 # This tag is <scala version>-<kafka version>
@@ -30,8 +28,6 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE
     networks:
       - raisemoodle
-    profiles:
-      - kafka
 
   redpanda:
     image: docker.redpanda.com/vectorized/console:master-cb51d72
@@ -43,8 +39,10 @@ services:
       - 8080:8080
     networks:
       - raisemoodle
-    profiles:
-      - kafka
+
+  eventsapi:
+    environment:
+      KAFKA_BROKERS: "kafka:29092"
 
 volumes:
   zkdata:
