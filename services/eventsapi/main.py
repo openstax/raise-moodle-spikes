@@ -1,4 +1,3 @@
-from asyncio import events
 from typing import Literal, Union
 from fastapi import FastAPI
 from pydantic import BaseModel
