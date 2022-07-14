@@ -24,10 +24,13 @@
 defined('MOODLE_INTERNAL') || die();
 $services = array(
       'FE Events (Direct) service' => array(
-          'functions' => array ('local_fe_events_direct_content_loaded_handler'),
           'enabled' => 1,
-          'shortname' => 'local_fe_events_direct_service'
-       )
+          'shortname' => 'local_fe_events_direct_service',
+          'functions' => array (
+            'local_fe_events_direct_content_loaded_handler',
+            'local_fe_events_direct_user_id_handler'
+          ),
+      ),
   );
 
   $functions = array(
@@ -38,4 +41,11 @@ $services = array(
         'loginrequired' => true,
         'ajax' => true
     ),
+    'local_fe_events_direct_user_id_handler' => array(
+      'classname'   => 'local_fe_events_direct_external',
+        'methodname'  => 'user_id',
+        'description' => 'returns the requested userID if the request is internal',
+        'loginrequired' => true,
+        'ajax' => true
+    )
   );

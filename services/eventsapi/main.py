@@ -1,5 +1,6 @@
 from typing import Literal, Union
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from kafka import KafkaProducer
 import aioboto3
@@ -18,6 +19,21 @@ app = FastAPI(
     title="RAISE Spikes API"
 )
 
+<<<<<<< HEAD
+=======
+CORS_ALLOWED_ORIGINS = os.getenv(
+    "CORS_ALLOWED_ORIGINS"
+)
+if CORS_ALLOWED_ORIGINS:
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=CORS_ALLOWED_ORIGINS,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+
+>>>>>>> main
 class LessonContentPageViewedEvent(BaseModel):
     eventname: Literal['\\mod_lesson\\event\\content_page_viewed']
     username: str
@@ -68,3 +84,4 @@ async def create_event(event: Event):
         producer.send(KAFKA_TOPIC, event.json().encode('utf-8'))
 
         producer.close()
+        print(f"Received event: {event.json()}")
