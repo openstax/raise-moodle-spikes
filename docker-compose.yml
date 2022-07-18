@@ -11,6 +11,7 @@ services:
       - ./plugins/study:/var/www/html/mod/study
       - ./plugins/content:/var/www/html/filter/content
       - ./plugins/fe_events_direct:/var/www/html/local/fe_events_direct
+      - ./plugins/fe_events_moodle:/var/www/html/local/fe_events_moodle
       - .:/repo
     networks:
       - raisemoodle

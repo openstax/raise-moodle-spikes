@@ -62,6 +62,25 @@ class event_processor {
                     'grade' => $eventdata['other']['finalgrade']
                 ];
                 break;
+                case '\\local\\event\\fe_event':
+                    $eventdata = $event->get_data();
+                    $username = $DB->get_field('user', 'username', ['id' => $eventdata['userid']]);
+                    $timestamp = $eventdata['timecreated'];
+                    $coursename = $DB->get_field('course', 'fullname', ['id' => $eventdata['courseid']]);
+                    $lessonname = $DB->get_field(
+                        'grade_items',
+                        'itemname',
+                        ['id' => $eventdata['other']['itemid']]
+                    );
+                    $data = [
+                        'username' => $username,
+                        'eventname' => $event->eventname,
+                        'timestamp' => $timestamp,
+                        'course_name' => $coursename,
+                        'lesson_name' => $lessonname,
+                        'grade' => $eventdata['other']['finalgrade']
+                    ];
+                    break;
             default:
                 return;
         }
