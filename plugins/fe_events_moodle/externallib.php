@@ -42,7 +42,7 @@ class local_fe_events_moodle_external extends external_api {
     public static function process_content_loaded_event_parameters() {
         return new external_function_parameters(
             array(
-                  'contentId' => new external_value(PARAM_TEXT, 'Content ID')                )
+                  'contentId' => new external_value(PARAM_TEXT, 'Content ID'))
             );
     }
 
@@ -63,8 +63,12 @@ class local_fe_events_moodle_external extends external_api {
         self::validate_context(context_system::instance());
 // remove this code 
 // add dispatcher which publishes to the events. Events accepts all events.
-        $event = \local\event\fe_event::create(array('contentid' => $contentid));
-        // ... code that may add some record snapshots
+        $event = \local\event\fe_event::create(array(            
+        'eventname' => 'content_loaded',
+        'user_id' => $USER->id,
+        'content_id' => $contentid,
+        'timestamp' => $date->getTimestamp()
+));
         $event->trigger();
         return array();
     }
