@@ -23,5 +23,5 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->component = 'local_fe_events_direct';
+$plugin->component = 'local_fe_events_moodle';
 $plugin->version  = 2022071800;
