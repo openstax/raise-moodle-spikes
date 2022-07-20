@@ -62,7 +62,7 @@ class event_processor {
                     'grade' => $eventdata['other']['finalgrade']
                 ];
                 break;
-                case '\\local\\event\\fe_event':
+                case '\\local_fe_events_moodle\\event\\fe_event':
                     $eventdata = $event->get_data();
                     $username = $DB->get_field('user', 'username', ['id' => $eventdata['userid']]);
                     $timestamp = $eventdata['timecreated'];
@@ -76,7 +76,7 @@ class event_processor {
                         'eventname' => 'EVENT NAME',
                         'user_id' => 'USERID' ,
                         'content_id' => 'CONTENT_ID',
-                        'timestamp' => $date->getTimestamp()
+                        'timestamp' => '$date->getTimestamp()'
                     ];
                     break;
             default:

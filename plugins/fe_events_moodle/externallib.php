@@ -63,11 +63,11 @@ class local_fe_events_moodle_external extends external_api {
         self::validate_context(context_system::instance());
 // remove this code 
 // add dispatcher which publishes to the events. Events accepts all events.
-        $event = \local\event\fe_event::create(array(            
+        $event = \local_fe_events_moodle\event\fe_event::create(array(            
         'eventname' => 'content_loaded',
         'user_id' => $USER->id,
         'content_id' => $contentid,
-        'timestamp' => $date->getTimestamp()
+        'timestamp' => '$date->getTimestamp()'
 ));
         $event->trigger();
         return array();
