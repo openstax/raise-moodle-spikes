@@ -17,7 +17,7 @@
 /**
  * Plugin version and other metadata.
  *
- * @package    local_fe_events_direct
+ * @package    local_fe_events_moodle
  * @copyright  2021 OpenStax
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */

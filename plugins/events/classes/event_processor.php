@@ -64,19 +64,16 @@ class event_processor {
                 break;
                 case '\\local_fe_events_moodle\\event\\fe_event':
                     $eventdata = $event->get_data();
-                    $username = $DB->get_field('user', 'username', ['id' => $eventdata['userid']]);
-                    $timestamp = $eventdata['timecreated'];
-                    $coursename = $DB->get_field('course', 'fullname', ['id' => $eventdata['courseid']]);
-                    $lessonname = $DB->get_field(
-                        'grade_items',
-                        'itemname',
-                        ['id' => $eventdata['other']['itemid']]
-                    );
+                    $content_id = $eventdata['other']['content_id'];
+                    $timestamp = $eventdata['other']['timestamp'];
+                    $userID = $eventdata['other']['user_id'];
+                    $event_name = $eventdata['other']['eventname'];
+
                     $data = [
-                        'eventname' => 'EVENT NAME',
-                        'user_id' => 'USERID' ,
-                        'content_id' => 'CONTENT_ID',
-                        'timestamp' => '$date->getTimestamp()'
+                        'eventname' => $event_name,
+                        'user_id' => $userID ,
+                        'content_id' => $content_id,
+                        'timestamp' => $timestamp
                     ];
                     break;
             default:

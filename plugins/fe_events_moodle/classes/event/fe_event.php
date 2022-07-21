@@ -13,7 +13,6 @@ class fe_event extends \core\event\base{
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
 
 
-
     }
 
     protected function validate_data() {
@@ -23,5 +22,6 @@ class fe_event extends \core\event\base{
             throw new \coding_exception('Context level must be CONTEXT_MODULE.');
         }
     }
+
 
 }

@@ -34,7 +34,7 @@ $services = array(
     'local_fe_events_moodle_content_loaded_handler' => array(
         'classname'   => 'local_fe_events_moodle_external',
         'methodname'  => 'process_content_loaded_event',
-        'description' => 'Sends event data directly to moodle',
+        'description' => 'Sends event data directly to moodle via a new event',
         'loginrequired' => true,
         'ajax' => true
     ),
