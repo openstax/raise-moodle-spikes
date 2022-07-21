@@ -13,7 +13,6 @@ EVENTS_S3_PREFIX = os.getenv("EVENTS_S3_PREFIX")
 KAFKA_BROKERS = os.getenv("KAFKA_BROKERS")
 
 KAFKA_SERVER = "kafka:29092"
-KAFKA_TOPIC = "eventsapi"
 
 app = FastAPI(
     title="RAISE Spikes API"
@@ -77,8 +76,6 @@ async def create_event(event: Event):
         print(f"Received event: {event.json()}")
 
     if KAFKA_BROKERS:
-        producer = KafkaProducer( bootstrap_servers=KAFKA_SERVER, api_version=(2, 0, 2))
-        producer.send(KAFKA_TOPIC, event.json().encode('utf-8'))
-
+        producer = KafkaProducer( bootstrap_servers=KAFKA_SERVER)
+        producer.send(event.eventname, event.json().encode('utf-8'))
         producer.close()
-        print(f"Received event: {event.json()}")
