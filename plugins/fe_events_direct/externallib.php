@@ -90,4 +90,44 @@ class local_fe_events_direct_external extends external_api {
         return new external_single_structure(
             array());
     }
+
+    /**
+     * Returns description of user_id() parameters
+     *
+     * @return external_function_parameters
+     */
+    public static function user_id_parameters() {
+        return new external_function_parameters(
+            array()
+        );
+    }
+
+    /**
+     * Returns the UserId
+     *
+     * @return array userId
+     */
+    public static function user_id(){
+        $params = self::validate_parameters(
+            self::user_id_parameters(),
+            array()
+        );
+        global $USER;
+        return array(
+            "userId"  => $USER->id
+        );
+    }
+
+    /**
+     * Returns description of user_id() return values
+     *
+     * @return external_single_structure
+     */
+    public static function user_id_returns() {
+        return new external_single_structure(
+            array(
+                "userId" => new external_value(PARAM_TEXT, 'Content ID')
+            ));
+    }
+
 }

@@ -51,6 +51,7 @@ services:
     environment:
       - EVENTS_S3_BUCKET
       - EVENTS_S3_PREFIX
+      - CORS_ALLOWED_ORIGINS=http://localhost:8000
   contentapi:
     build:
       context: services/contentapi
