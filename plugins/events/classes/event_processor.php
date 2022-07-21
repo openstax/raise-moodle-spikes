@@ -62,20 +62,20 @@ class event_processor {
                     'grade' => $eventdata['other']['finalgrade']
                 ];
                 break;
-                case '\\local_fe_events_moodle\\event\\fe_event':
-                    $eventdata = $event->get_data();
-                    $content_id = $eventdata['other']['content_id'];
-                    $timestamp = $eventdata['other']['timestamp'];
-                    $userID = $eventdata['other']['user_id'];
-                    $event_name = $eventdata['other']['eventname'];
+            case '\\local_fe_events_moodle\\event\\fe_event':
+                $eventdata = $event->get_data();
+                $contentid = $eventdata['other']['content_id'];
+                $timestamp = $eventdata['other']['timestamp'];
+                $userid = $eventdata['other']['user_id'];
+                $eventname = $eventdata['other']['eventname'];
 
-                    $data = [
-                        'eventname' => $event_name,
-                        'user_id' => $userID ,
-                        'content_id' => $content_id,
-                        'timestamp' => $timestamp
-                    ];
-                    break;
+                $data = [
+                    'eventname' => $eventname,
+                    'user_id' => $userid ,
+                    'content_id' => $contentid,
+                    'timestamp' => $timestamp
+                ];
+                break;
             default:
                 return;
         }

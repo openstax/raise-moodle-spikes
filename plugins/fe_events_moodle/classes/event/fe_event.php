@@ -4,15 +4,13 @@ namespace local_fe_events_moodle\event;
 
 defined('MOODLE_INTERNAL') || die();
 
-class fe_event extends \core\event\base{
+class fe_event extends \core\event\base {
 
 
     protected function init() {
         $this->context = \context_system::instance();
         $this->data['crud'] = 'c';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-
-
     }
 
     protected function validate_data() {

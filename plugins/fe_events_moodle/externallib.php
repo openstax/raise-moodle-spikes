@@ -22,6 +22,7 @@
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
+
 require_once($CFG->libdir . '/externallib.php');
 require_once($CFG->libdir . "/filelib.php");
 
@@ -63,15 +64,14 @@ class local_fe_events_moodle_external extends external_api {
         self::validate_context(context_system::instance());
         $date = new DateTime();
 
-        $event = \local_fe_events_moodle\event\fe_event::create(array(            
-        'other'=>array(
+        $event = \local_fe_events_moodle\event\fe_event::create(array(
+        'other' => array(
             'eventname' => 'content_loaded',
             'user_id' => $USER->id,
             'content_id' => $contentid,
             'timestamp' => $date->getTimestamp()
         )
-        
-));
+        ));
         $event->trigger();
         return array();
     }
