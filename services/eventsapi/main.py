@@ -31,7 +31,7 @@ if CORS_ALLOWED_ORIGINS:
 
 
 class LessonContentPageViewedEvent(BaseModel):
-    eventname: Literal['\\mod_lesson\\event\\content_page_viewed']
+    eventname: Literal['moodle_lesson_content_page_viewed']
     username: str
     timestamp: int
     course_name: str
@@ -40,7 +40,7 @@ class LessonContentPageViewedEvent(BaseModel):
 
 
 class UserGradedEvent(BaseModel):
-    eventname: Literal['\\core\\event\\user_graded']
+    eventname: Literal['moodle_user_graded']
     username: str
     timestamp: int
     course_name: str
