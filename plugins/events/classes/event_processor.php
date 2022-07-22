@@ -36,7 +36,7 @@ class event_processor {
                 );
                 $data = [
                     'username' => $username,
-                    'eventname' => $event->eventname,
+                    'eventname' =>'moodle_lesson_content_page_viewed',
                     'timestamp' => $timestamp,
                     'course_name' => $coursename,
                     'page_title' => $pagetitle,
@@ -55,7 +55,7 @@ class event_processor {
                 );
                 $data = [
                     'username' => $username,
-                    'eventname' => $event->eventname,
+                    'eventname' =>'moodle_user_graded',
                     'timestamp' => $timestamp,
                     'course_name' => $coursename,
                     'lesson_name' => $lessonname,

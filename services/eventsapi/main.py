@@ -2,12 +2,17 @@ from typing import Literal, Union
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+from kafka import KafkaProducer
 import aioboto3
 import uuid
 import os
 
+
 EVENTS_S3_BUCKET = os.getenv("EVENTS_S3_BUCKET")
 EVENTS_S3_PREFIX = os.getenv("EVENTS_S3_PREFIX")
+KAFKA_BROKERS = os.getenv("KAFKA_BROKERS")
+
+KAFKA_SERVER = "kafka:29092"
 
 app = FastAPI(
     title="RAISE Spikes API"
@@ -26,7 +31,7 @@ if CORS_ALLOWED_ORIGINS:
 
 
 class LessonContentPageViewedEvent(BaseModel):
-    eventname: Literal['\\mod_lesson\\event\\content_page_viewed']
+    eventname: Literal['moodle_lesson_content_page_viewed']
     username: str
     timestamp: int
     course_name: str
@@ -35,7 +40,7 @@ class LessonContentPageViewedEvent(BaseModel):
 
 
 class UserGradedEvent(BaseModel):
-    eventname: Literal['\\core\\event\\user_graded']
+    eventname: Literal['moodle_user_graded']
     username: str
     timestamp: int
     course_name: str
@@ -56,7 +61,6 @@ Event = Union[
     ContentLoadedEvent
 ]
 
-
 @app.post("/events", status_code=201)
 async def create_event(event: Event):
     # Depending on settings, store data to S3 or just log
@@ -70,3 +74,8 @@ async def create_event(event: Event):
             )
     else:
         print(f"Received event: {event.json()}")
+
+    if KAFKA_BROKERS:
+        producer = KafkaProducer( bootstrap_servers=KAFKA_SERVER)
+        producer.send(event.eventname, event.json().encode('utf-8'))
+        producer.close()
