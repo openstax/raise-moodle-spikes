@@ -63,6 +63,7 @@ services:
       - 8800:80
   postgres:
     image: "postgres:13"
+    container_name: postgres_db
     volumes:
       - pgdata:/var/lib/postgresql/data
     networks:
@@ -71,14 +72,25 @@ services:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
       - POSTGRES_DB
+    ports:
+      - "5432:5432"
+  pgadmin:
+    image: "dpage/pgadmin4"
+    networks:
+      - raisemoodle
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5050:80"
   mailhog:
     image: mailhog/mailhog
     networks:
       - raisemoodle
     ports:
       - 8025:8025
-networks:
-  raisemoodle:
-volumes:
+networks:        
+  raisemoodle:                                                                                                                       
+volumes:           
   pgdata:
   moodledata:
