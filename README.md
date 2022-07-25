@@ -38,19 +38,24 @@ $ docker-compose -f docker-compose.yml -f docker-compose.kafka.yml up -d
 Setup pgadmin to view moodle database
 
 To log into the server go to [http://localhost:5050/](http://localhost:5050/)
+
 Log in:
-Email: admin@admin.com
-Password: root
+
+- Email: admin@admin.com
+- Password: root
 
 On the home page click "Add new server"
 Give the new server a name. Example: "my_db"
-Go to the connection tab and set the following perameters 
-Hostname/address: postgres_db
-Port: 5432
-Username:moodle
-Password:moodledbpassword
+
+Go to the connection tab and set the following perameters
+
+- Hostname/address: postgres_db
+- Port: 5432
+- Username: moodle
+- Password: moodledbpassword
 
 Click "Save"
+
 ### Debugging in a local environment
 
 You can configure your local development environment to debug Moodle in VScode using the following steps:
