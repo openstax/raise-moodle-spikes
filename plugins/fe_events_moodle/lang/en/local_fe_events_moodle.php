@@ -21,34 +21,7 @@
  * @copyright  2021 OpenStax
  * @license    https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die();
 
-namespace local_fe_events_moodle\event;
-
-/**
- * FE event class.
- */
-class fe_event extends \core\event\base {
-
-    /**
-     * Initialise the event data.
-     */
-    protected function init() {
-        $this->context = \context_system::instance();
-        $this->data['crud'] = 'c';
-        $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
-    }
-
-    /**
-     * Custom validation.
-     *
-     * Throw \coding_exception notice in case of any problems.
-     */
-    protected function validate_data() {
-        parent::validate_data();
-        // Make sure this class is never used without proper object details.
-        if (!$this->contextlevel === CONTEXT_MODULE) {
-            throw new \coding_exception('Context level must be CONTEXT_MODULE.');
-        }
-    }
-
-}
+$string['pluginname'] = 'Direct to Moodle';
+$string['pluginname_help'] = 'Event testing to Moodle';
