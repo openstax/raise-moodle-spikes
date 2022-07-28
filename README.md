@@ -34,8 +34,7 @@ You can use the following command if you want to deploy `kafka` and related serv
 ```bash
 $ docker-compose -f docker-compose.yml -f docker-compose.kafka.yml up -d 
 ```
-
-Setup pgadmin to view moodle database
+### Setup pgadmin to view moodle database
 
 To log into the server go to [http://localhost:5050/](http://localhost:5050/)
 
@@ -49,7 +48,7 @@ Give the new server a name. Example: "my_db"
 
 Go to the connection tab and set the following perameters
 
-- Hostname/address: postgres_db
+- Hostname/address: postgres
 - Port: 5432
 - Username: moodle
 - Password: moodledbpassword
