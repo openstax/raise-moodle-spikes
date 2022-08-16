@@ -1,6 +1,6 @@
 FROM moodlehq/moodle-php-apache:8.0 as base
 
-ARG MOODLE_VERSION=v4.0.1
+ARG MOODLE_VERSION=v4.0.2
 ARG LOCAL_CODECHECKER_VERSION=v3.1.0
 ARG LOCAL_MOODLECHECK_VERSION=v1.0.9
 ARG TOOL_PLUGINSKEL_VERSION=1.5.3
@@ -22,9 +22,6 @@ COPY moodle/moodle-config.php /var/www/html/config.php
 COPY moodle/php.ini-development /usr/local/etc/php/php.ini
 COPY moodle/cron.moodle /etc/cron.d/moodle
 RUN chmod 644 /etc/cron.d/moodle
-
-COPY plugins/events /var/www/html/admin/tool/events
-COPY plugins/study /var/www/html/mod/study
 
 FROM base as dbg
 
