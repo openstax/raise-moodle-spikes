@@ -23,9 +23,6 @@ COPY moodle/php.ini-development /usr/local/etc/php/php.ini
 COPY moodle/cron.moodle /etc/cron.d/moodle
 RUN chmod 644 /etc/cron.d/moodle
 
-COPY plugins/events /var/www/html/admin/tool/events
-COPY plugins/study /var/www/html/mod/study
-
 FROM base as dbg
 
 RUN pecl update-channels && pecl install xdebug
