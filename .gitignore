@@ -1,1 +1,5 @@
 .vscode
+.gitignore
+demos/enclave/__pycache__
+demos/enclave/tests/__pycache__
+demos/enclave/.pytest_cache
