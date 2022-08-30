@@ -1,4 +1,3 @@
-from enum import unique
 import json
 from uuid import UUID
 import uuid
@@ -241,8 +240,11 @@ def collect_HISD_oneroster_data(bucket, key):
             continue
         dfs[name] = pd.read_csv(BytesIO(zf.read(name)))
 
-    demographics = dfs["demographics.csv"].to_dict('list')
-    users = dfs["users.csv"].to_dict('list')
+    for key in dfs:
+        if "demographics.csv" in key:
+            demographics = dfs[key].to_dict('list')
+        if "users.csv" in key:
+            users = dfs[key].to_dict('list')
     return demographics, users
 
 
