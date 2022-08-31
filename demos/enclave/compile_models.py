@@ -5,6 +5,7 @@ import os
 import boto3
 import argparse
 import pandas as pd
+from csv import QUOTE_NONE
 from io import BytesIO
 from zipfile import ZipFile
 from pydantic import BaseModel
@@ -60,21 +61,14 @@ class User(BaseModel):
     email: str
 
 
-def assessment_model(cli_grades):
-    unique_courses = []
+def assessment_model(name_2_assessmentId):
     assessments = []
-    for user_item in cli_grades["usergrades"]:
-        course_id = user_item["courseid"]
-        if course_id not in unique_courses:
-            unique_courses.append(course_id)
-            for grade_item in user_item["gradeitems"]:
-                print(grade_item)
-                if grade_item["itemname"] is not None:
-                    data = {
-                        "id": grade_item["id"],
-                        "name": grade_item["itemname"]
-                    }
-                    assessments.append(Assessment.parse_obj(data))
+    for name in name_2_assessmentId:
+        data = {
+            "id": name_2_assessmentId[name],
+            "name": name
+        }
+        assessments.append(Assessment.parse_obj(data))
     return pd.DataFrame([s.__dict__ for s in assessments])
 
 
@@ -106,19 +100,20 @@ def enrollments_model(cli_users, email_2_uuid):
     return pd.DataFrame([s.__dict__ for s in enrolments])
 
 
-def grades_model(cli_grades, userid_2_email, email_2_uuid):
+def grades_model(cli_grades, userid_2_email, email_2_uuid, name_2_assessmentId):
     grades = []
     for user_item in cli_grades["usergrades"]:
         course_id = user_item["courseid"]
         uuid = email_2_uuid[userid_2_email[user_item["userid"]]]
         for assn in user_item["gradeitems"]:
             grade = assn["percentageformatted"].strip('%')
-            if grade == "-":
+            if grade == "-" or assn["itemname"] is None:
                 continue
             else: 
                 grade = float(grade)
+                assessment_id = name_2_assessmentId[assn["itemname"]]
             data = {
-                "assessment_id": assn["id"],
+                "assessment_id": assessment_id,
                 "user_uuid": uuid,
                 "course_id": course_id,
                 "grade_percentage": float(assn["percentageformatted"].strip('%'))
@@ -175,13 +170,23 @@ def demographics_model(oneroster_demographics, sourceid_2_email, email_2_uuid, )
     return pd.DataFrame([s.__dict__ for s in demographics])
 
 
+def make_name2assessmentID(cli_grades):
+    mapping = {}
+    count = 0
+    for user_item in cli_grades["usergrades"]:
+        for grade_item in user_item["gradeitems"]:
+            if grade_item["itemname"] is not None:
+                name = grade_item["itemname"].strip('"')
+                if name not in mapping.keys():
+                    mapping[name] = count
+                    count += 1
+    return mapping
 
 def make_email2uuid(cli_users):
     mapping = {}
     for user in cli_users:
         mapping[user["email"]] = uuid.uuid4()
     return mapping 
-
 
 def make_userid2email(cli_users):
     mapping = {}
@@ -203,13 +208,14 @@ def create_models(
     sourceid_2_email = make_sourceid2email(oneroster_users)
     userid_2_email = make_userid2email(cli_users)
     email_2_uuid = make_email2uuid(cli_users)
+    name_2_assessmentId = make_name2assessmentID(cli_grades)
 
     demographics_df = demographics_model(oneroster_demographics,sourceid_2_email, email_2_uuid)
     users_df = users_model(oneroster_users, sourceid_2_email, email_2_uuid)
-    grades_df = grades_model(cli_grades, userid_2_email, email_2_uuid)
+    grades_df = grades_model(cli_grades, userid_2_email, email_2_uuid, name_2_assessmentId)
     enrollments_df = enrollments_model(cli_users, email_2_uuid)
     courses_df = courses_model(cli_users)
-    assessments_df = assessment_model(cli_grades)
+    assessments_df = assessment_model(name_2_assessmentId)
 
     with open(f"{output_path}/demographics.csv", "w") as f:
         demographics_df.to_csv(f, index=False, header=True)
@@ -222,7 +228,7 @@ def create_models(
     with open(f"{output_path}/courses.csv", "w") as f:
         courses_df.to_csv(f, index=False, header=True)
     with open(f"{output_path}/assessments.csv", "w") as f:
-        assessments_df.to_csv(f, index=False, header=True)
+        assessments_df.to_csv(f, index=False, header=True, quoting=QUOTE_NONE, escapechar='\\')
     exit()
 
 
