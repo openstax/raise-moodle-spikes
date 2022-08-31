@@ -235,7 +235,6 @@ def create_models(
         courses_df.to_csv(f, index=False, header=True)
     with open(f"{output_path}/assessments.csv", "w") as f:
         assessments_df.to_csv(f, index=False, header=True, quoting=QUOTE_NONE, escapechar='\\')
-    exit()
 
 
 def collect_HISD_oneroster_data(bucket, key):
