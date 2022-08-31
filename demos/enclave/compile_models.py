@@ -75,50 +75,53 @@ def assessment_model(name_2_assessmentId):
 def courses_model(cli_users):
     unique_ids = []
     courses = []
-    for user in cli_users:
-        course_id = user["enrolledcourses"][0]["id"]
-        if course_id not in unique_ids:
-            unique_ids.append(course_id)
-            data = {
-                "id": course_id,
-                "name": user["enrolledcourses"][0]["fullname"]
-            }
-            courses.append(Course.parse_obj(data))
+    for classroom in cli_users.keys():
+        for user in cli_users[classroom]:
+            course_id = user["enrolledcourses"][0]["id"]
+            if course_id not in unique_ids:
+                unique_ids.append(course_id)
+                data = {
+                    "id": course_id,
+                    "name": user["enrolledcourses"][0]["fullname"]
+                }
+                courses.append(Course.parse_obj(data))
     return pd.DataFrame([s.__dict__ for s in courses])
 
 
 def enrollments_model(cli_users, email_2_uuid):
     enrolments = []
-    for user_item in cli_users:
-        uuid = email_2_uuid[user_item["email"]]
-        data = {
-            "user_uuid": uuid,
-            "course_id": user_item["enrolledcourses"][0]["id"],
-            "role": user_item["roles"][0]["shortname"]
-        }
-        enrolments.append(Enrollment.parse_obj(data))
-    return pd.DataFrame([s.__dict__ for s in enrolments])
+    for classroom in cli_users.keys():
+        for user_item in cli_users[classroom]:
+            uuid = email_2_uuid[user_item["email"]]
+            data = {
+                "user_uuid": uuid,
+                "course_id": user_item["enrolledcourses"][0]["id"],
+                "role": user_item["roles"][0]["shortname"]
+            }
+            enrolments.append(Enrollment.parse_obj(data))
+        return pd.DataFrame([s.__dict__ for s in enrolments])
 
 
 def grades_model(cli_grades, userid_2_email, email_2_uuid, name_2_assessmentId):
     grades = []
-    for user_item in cli_grades["usergrades"]:
-        course_id = user_item["courseid"]
-        uuid = email_2_uuid[userid_2_email[user_item["userid"]]]
-        for assn in user_item["gradeitems"]:
-            grade = assn["percentageformatted"].strip('%')
-            if grade == "-" or assn["itemname"] is None:
-                continue
-            else: 
-                grade = float(grade)
-                assessment_id = name_2_assessmentId[assn["itemname"]]
-            data = {
-                "assessment_id": assessment_id,
-                "user_uuid": uuid,
-                "course_id": course_id,
-                "grade_percentage": float(assn["percentageformatted"].strip('%'))
-            }
-            grades.append(Grades.parse_obj(data))
+    for classroom in cli_grades.keys():
+        for user_item in cli_grades[classroom]["usergrades"]:
+            course_id = user_item["courseid"]
+            uuid = email_2_uuid[userid_2_email[user_item["userid"]]]
+            for assn in user_item["gradeitems"]:
+                grade = assn["percentageformatted"].strip('%')
+                if grade == "-" or assn["itemname"] is None:
+                    continue
+                else: 
+                    grade = float(grade)
+                    assessment_id = name_2_assessmentId[assn["itemname"]]
+                data = {
+                    "assessment_id": assessment_id,
+                    "user_uuid": uuid,
+                    "course_id": course_id,
+                    "grade_percentage": float(assn["percentageformatted"].strip('%'))
+                }
+                grades.append(Grades.parse_obj(data))
     return pd.DataFrame([s.__dict__ for s in grades])
             
 
@@ -173,25 +176,28 @@ def demographics_model(oneroster_demographics, sourceid_2_email, email_2_uuid, )
 def make_name2assessmentID(cli_grades):
     mapping = {}
     count = 0
-    for user_item in cli_grades["usergrades"]:
-        for grade_item in user_item["gradeitems"]:
-            if grade_item["itemname"] is not None:
-                name = grade_item["itemname"].strip('"')
-                if name not in mapping.keys():
-                    mapping[name] = count
-                    count += 1
+    for classroom in cli_grades.keys():
+        for user_item in cli_grades[classroom]["usergrades"]:
+            for grade_item in user_item["gradeitems"]:
+                if grade_item["itemname"] is not None:
+                    name = grade_item["itemname"].strip('"')
+                    if name not in mapping.keys():
+                        mapping[name] = count
+                        count += 1
     return mapping
 
 def make_email2uuid(cli_users):
     mapping = {}
-    for user in cli_users:
-        mapping[user["email"]] = uuid.uuid4()
+    for classroom in cli_users.keys():
+        for user in cli_users[classroom]:
+            mapping[user["email"]] = uuid.uuid4()
     return mapping 
 
 def make_userid2email(cli_users):
     mapping = {}
-    for user in cli_users:
-        mapping[user["id"]] = user["email"]
+    for classroom in cli_users.keys():
+        for user in cli_users[classroom]:
+            mapping[user["id"]] = user["email"]
     return mapping
 
 def make_sourceid2email(oneroster_users):
@@ -255,14 +261,38 @@ def collect_HISD_oneroster_data(bucket, key):
 
 
 def collect_cli_data(bucket, prefix):
-    s3_resource = boto3.resource("s3")
-    s3_bucket = s3_resource.Bucket(bucket)
-    users, grades = {}, {}
-    for object in s3_bucket.objects.filter(Prefix=f"{prefix}/users"):
-        users = json.loads(object.get()["Body"].read())
-    for object in s3_bucket.objects.filter(Prefix=f"{prefix}/grades"):
-        grades = json.loads(object.get()["Body"].read())
-    return grades, users
+    grade_dict, users_dict = {}, {}
+    s3_client = boto3.client("s3")
+    # Note that these will only get 1000 classes at a time 
+    grade_data_objects = s3_client.list_objects(
+        Bucket=bucket,
+        Prefix=f"{prefix}/grades"
+    )
+    users_data_objects = s3_client.list_objects(
+        Bucket=bucket,
+        Prefix=f"{prefix}/users"
+    )
+    for data_object in grade_data_objects.get("Contents"):
+        object_key = data_object.get("Key")
+        course_id = object_key.split("/")[-1].split(".json")[0]
+        data = s3_client.get_object(
+            Bucket=bucket,
+            Key=object_key
+        )
+        contents = data["Body"].read()
+        grade_dict[course_id] = json.loads(contents)
+
+    for data_object in users_data_objects.get("Contents"):
+        object_key = data_object.get("Key")
+        course_id = object_key.split("/")[-1].split(".json")[0]
+        data = s3_client.get_object(
+            Bucket=bucket,
+            Key=object_key
+        )
+        contents = data["Body"].read()
+        users_dict[course_id] = json.loads(contents)
+
+    return grade_dict, users_dict
 
 
 def compile_models(cli_bucket, cli_key, oneroster_bucket, oneroster_key):
