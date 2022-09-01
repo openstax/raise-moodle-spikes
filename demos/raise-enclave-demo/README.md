@@ -2,7 +2,7 @@
 
 ## Code example
 
-This demo envlave container takes `grades.csv` and `oneroster_demographics.csv` and gives us the average 
+This demo enclave container takes `grades.csv` and `oneroster_demographics.csv` and gives us the average 
 `grade_percentage` based on sex. 
 
 Using the Pandas library we import the files into DataFrames.
@@ -57,3 +57,4 @@ Now we can run the container, pass the environment variables and mount volumes t
 ```bash
 docker run --rm -e DATA_INPUT_DIR=/input -e RESULT_OUTPUT_DIR=/output -v $PWD/enclave-input:/input -v $PWD/enclave-output:/output enclave_container
 ```
+ 
