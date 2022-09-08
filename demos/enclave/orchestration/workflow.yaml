@@ -1,0 +1,64 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: raise-spikes-enclave-
+spec:
+  entrypoint: flow
+  volumeClaimTemplates:
+  - metadata:
+      name: workdir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: gp2
+      resources:
+        requests:
+          storage: 1Gi
+  templates:
+  - name: setup
+    container:
+      image: rnathuji/raise-spikes-enclave-setup
+      command: ["./setup.sh"]
+      volumeMounts:
+      - name: workdir
+        mountPath: /data
+      env:
+        - name: DATA_DIR # Passing this so setup can create desired structure in volume for subsequent stages
+          value: /data
+        - name: CSV_OUTPUT_DIR
+          value: /data/enclave-input
+  - name: analyze
+    container:
+      image: rnathuji/raise-spikes-enclave-analyzer
+      command: ["python", "./data_analysis.py"]
+      volumeMounts:
+      - name: workdir
+        mountPath: /data
+      env:
+        - name: DATA_INPUT_DIR
+          value: /data/enclave-input
+        - name: RESULT_OUTPUT_DIR
+          value: /data/enclave-output
+    metadata:
+      labels:
+        role: enclave
+  - name: postprocess
+    container:
+      image: rnathuji/raise-spikes-enclave-postprocessor
+      command: ["./postprocess.sh"]
+      volumeMounts:
+      - name: workdir
+        mountPath: /data
+      env:
+        - name: RESULT_DIR
+          value: /data/enclave-output
+  - name: flow
+    dag:
+      tasks:
+      - name: setup
+        template: setup
+      - name: analyze
+        dependencies: [setup]
+        template: analyze
+      - name: postprocess
+        dependencies: [analyze]
+        template: postprocess
