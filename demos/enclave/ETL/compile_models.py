@@ -1,14 +1,14 @@
+from datetime import datetime
 import json
-from uuid import UUID
-import uuid
+from typing import Literal
+from uuid import UUID, uuid4
 import os
 import boto3
 import argparse
 import pandas as pd
-from csv import QUOTE_NONE
 from io import BytesIO
 from zipfile import ZipFile
-from pydantic import BaseModel
+from pydantic import BaseModel, Extra, validator
 
 MODEL_FILE_USERS = "users.csv"
 MODEL_FILE_COURSES = "courses.csv"
@@ -21,30 +21,47 @@ MODEL_FILE_GRADES = "grades.csv"
 class Demographic(BaseModel):
     user_uuid: UUID
     birth_date: str
-    sex: str
-    american_indian_or_alaska_native: str
-    asian: str
-    black_or_african_american: str
-    native_hawaiian_or_other_pacific_islander: str
-    white: str
-    demographic_race_two_or_more_races: str
-    hispanic_or_latino_ethnicity: str
+    sex: Literal['male', 'female']
+    american_indian_or_alaska_native: Literal['true', 'false']
+    asian: Literal['true', 'false']
+    black_or_african_american: Literal['true', 'false']
+    native_hawaiian_or_other_pacific_islander: Literal['true', 'false']
+    white: Literal['true', 'false']
+    demographic_race_two_or_more_races: Literal['true', 'false']
+    hispanic_or_latino_ethnicity: Literal['true', 'false']
+
+    class Config:
+        extra = Extra.forbid
+
+    @validator('birth_date')
+    def birthdate_format(cls, v):
+        datetime.strptime(v, "%Y-%m-%d")
+        return v
 
 
 class Assessment(BaseModel):
     id: int
     name: str
 
+    class Config:
+        extra = Extra.forbid
+
 
 class Course(BaseModel):
     id: int
     name: str
 
+    class Config:
+        extra = Extra.forbid
+
 
 class Enrollment(BaseModel):
     user_uuid: UUID
     course_id: int
-    role: str
+    role: Literal['student', 'teacher']
+
+    class Config:
+        extra = Extra.forbid
 
 
 class Grades(BaseModel):
@@ -53,177 +70,177 @@ class Grades(BaseModel):
     course_id: int
     grade_percentage: float
 
+    class Config:
+        extra = Extra.forbid
+
+    @validator('grade_percentage')
+    def grade_value(cls, v):
+        if v < 0.0 or v > 100.0:
+            raise ValueError(f'Grade value {v} is out of expected range')
+        return v
+
 
 class User(BaseModel):
-    user_uuid: UUID
+    uuid: UUID
     first_name: str
     last_name: str
     email: str
 
-
-def assessment_model(name_2_assessmentId):
-    assessments = []
-    for name in name_2_assessmentId:
-        data = {
-            "id": name_2_assessmentId[name],
-            "name": name
-        }
-        assessments.append(Assessment.parse_obj(data))
-    return pd.DataFrame([s.__dict__ for s in assessments])
+    class Config:
+        extra = Extra.forbid
 
 
-def courses_model(cli_users):
-    unique_ids = []
-    courses = []
-    for classroom in cli_users.keys():
-        for user in cli_users[classroom]:
-            course_id = user["enrolledcourses"][0]["id"]
-            if course_id not in unique_ids:
-                unique_ids.append(course_id)
-                data = {
-                    "id": course_id,
-                    "name": user["enrolledcourses"][0]["fullname"]
-                }
-                courses.append(Course.parse_obj(data))
-    return pd.DataFrame([s.__dict__ for s in courses])
+def courses_model(clean_raw_df):
+    courses_df = clean_raw_df['courses']
+
+    for item in courses_df.to_dict(orient='records'):
+        assert (Course.parse_obj(item))
+
+    return courses_df
 
 
-def enrollments_model(cli_users, email_2_uuid):
-    enrolments = []
-    for classroom in cli_users.keys():
-        for user_item in cli_users[classroom]:
-            uuid = email_2_uuid[user_item["email"]]
-            data = {
-                "user_uuid": uuid,
-                "course_id": user_item["enrolledcourses"][0]["id"],
-                "role": user_item["roles"][0]["shortname"]
-            }
-            enrolments.append(Enrollment.parse_obj(data))
-        return pd.DataFrame([s.__dict__ for s in enrolments])
+def enrollments_model(clean_raw_df):
+    enrollments_df = clean_raw_df['enrollments']
+    users_df = clean_raw_df['cli_users'][['user_id', 'uuid']]
+    enrollments_df = pd.merge(enrollments_df, users_df, on='user_id')
+    enrollments_df.rename(columns={'uuid': 'user_uuid'}, inplace=True)
+    enrollments_df = enrollments_df[['user_uuid', 'course_id', 'role']]
+
+    for item in enrollments_df.to_dict(orient='records'):
+        assert (Enrollment.parse_obj(item))
+
+    return enrollments_df
 
 
-def grades_model(cli_grades, userid_2_email, email_2_uuid, name_2_assessmentId):
-    grades = []
-    for classroom in cli_grades.keys():
-        for user_item in cli_grades[classroom]["usergrades"]:
-            course_id = user_item["courseid"]
-            uuid = email_2_uuid[userid_2_email[user_item["userid"]]]
-            for assn in user_item["gradeitems"]:
-                grade = assn["percentageformatted"].strip('%')
-                if grade == "-" or assn["itemname"] is None:
-                    continue
-                else: 
-                    grade = float(grade)
-                    assessment_id = name_2_assessmentId[assn["itemname"]]
-                data = {
-                    "assessment_id": assessment_id,
-                    "user_uuid": uuid,
-                    "course_id": course_id,
-                    "grade_percentage": float(assn["percentageformatted"].strip('%'))
-                }
-                grades.append(Grades.parse_obj(data))
-    return pd.DataFrame([s.__dict__ for s in grades])
-            
+def users_model(clean_raw_df):
+    users_df = clean_raw_df['cli_users']
+    users_df = users_df[['uuid', 'first_name', 'last_name', 'email']]
 
-def users_model(oneroster_users, sourceid_2_email, email_2_uuid):
-    users = []
-    for i in range (len(oneroster_users["sourceId"])):
-        uuid = email_2_uuid[sourceid_2_email[oneroster_users["sourceId"][i]]]
-        data = {
-            "user_uuid":
-                uuid,
-            "first_name":
-                oneroster_users["givenName"][i],
-            "last_name":
-                oneroster_users["familyName"][i],
-            "email":
-                oneroster_users["email"][i].lower()
-        }
-        users.append(User.parse_obj(data))
-    return pd.DataFrame([s.__dict__ for s in users])
+    for item in users_df.to_dict(orient='records'):
+        assert (User.parse_obj(item))
+
+    return users_df
 
 
-def demographics_model(oneroster_demographics, sourceid_2_email, email_2_uuid, ):
-    demographics = []
-    for i in range(len(oneroster_demographics["sourceId"])):
-        uuid = email_2_uuid[sourceid_2_email[oneroster_demographics["sourceId"][i]]]
-        data = {
-            "user_uuid":
-                uuid,
-            "birth_date":
-                oneroster_demographics["birthDate"][i],
-            "sex":
-                oneroster_demographics["sex"][i],
-            "american_indian_or_alaska_native":
-                str(oneroster_demographics["americanIndianOrAlaskaNative"][i]).lower(),
-            "asian":
-                str(oneroster_demographics["asian"][i]).lower(),
-            "black_or_african_american":
-                str(oneroster_demographics["blackOrAfricanAmerican"][i]).lower(),
-            "native_hawaiian_or_other_pacific_islander":
-                str(oneroster_demographics["naitiveHawaiianOrPacificIslander"][i]).lower(),
-            "white":
-                str(oneroster_demographics["white"][i]).lower(),
-            "demographic_race_two_or_more_races":
-                str(oneroster_demographics["demographicRaceTwoOrMoreRaces"][i]).lower(),
-            "hispanic_or_latino_ethnicity":
-                str(oneroster_demographics["hispanicOrLatinoEthnicity"][i]).lower()
-        }
-        demographics.append(Demographic.parse_obj(data))
-    return pd.DataFrame([s.__dict__ for s in demographics])
+def assessments_and_grades_model(clean_raw_df):
+    grades_df = clean_raw_df['grades']
+    assessments_df = pd.DataFrame(
+        grades_df['assessment_name'].unique(), columns=['name']
+    )
+    assessments_df['id'] = assessments_df.index
+    grades_df = pd.merge(
+        grades_df, assessments_df, left_on='assessment_name', right_on='name'
+    )
+    grades_df.rename(columns={'id': 'assessment_id'}, inplace=True)
+    cli_users = clean_raw_df['cli_users'][['user_id', 'uuid']]
+    grades_df = pd.merge(grades_df, cli_users, on='user_id')
+    grades_df.rename(columns={'uuid': 'user_uuid'}, inplace=True)
+    grades_df = grades_df[
+        ['assessment_id', 'user_uuid', 'course_id', 'grade_percentage']
+    ]
+
+    def convert_percentage(x):
+        if x == '-':
+            return None
+        return float(x.strip("%"))
+
+    grades_df['grade_percentage'] = grades_df['grade_percentage'].map(
+        convert_percentage
+    )
+
+    for item in assessments_df.to_dict(orient='records'):
+        assert (Assessment.parse_obj(item))
+    for item in grades_df.to_dict(orient='records'):
+        assert (Grades.parse_obj(item))
+
+    return assessments_df, grades_df
 
 
-def make_name2assessmentID(cli_grades):
-    mapping = {}
-    count = 0
-    for classroom in cli_grades.keys():
-        for user_item in cli_grades[classroom]["usergrades"]:
-            for grade_item in user_item["gradeitems"]:
-                if grade_item["itemname"] is not None:
-                    name = grade_item["itemname"].strip('"')
-                    if name not in mapping.keys():
-                        mapping[name] = count
-                        count += 1
-    return mapping
+def demographics_model(all_raw_dfs):
 
-def make_email2uuid(cli_users):
-    mapping = {}
-    for classroom in cli_users.keys():
-        for user in cli_users[classroom]:
-            mapping[user["email"]] = uuid.uuid4()
-    return mapping 
+    demographic_df = all_raw_dfs['demographics']
 
-def make_userid2email(cli_users):
-    mapping = {}
-    for classroom in cli_users.keys():
-        for user in cli_users[classroom]:
-            mapping[user["id"]] = user["email"]
-    return mapping
+    demographic_df.rename(
+        columns={
+            'birthDate':
+            'birth_date'
+        }, inplace=True)
+    demographic_df.rename(
+        columns={
+            'americanIndianOrAlaskaNative':
+            'american_indian_or_alaska_native'
+        }, inplace=True)
+    demographic_df.rename(
+        columns={
+            'blackOrAfricanAmerican':
+            'black_or_african_american'
+        }, inplace=True)
+    demographic_df.rename(
+        columns={
+            'naitiveHawaiianOrPacificIslander':
+            'native_hawaiian_or_other_pacific_islander'
+        }, inplace=True)
+    demographic_df.rename(
+        columns={
+            'demographicRaceTwoOrMoreRaces':
+            'demographic_race_two_or_more_races'
+        }, inplace=True)
+    demographic_df.rename(
+        columns={
+            'hispanicOrLatinoEthnicity':
+            'hispanic_or_latino_ethnicity'
+        }, inplace=True)
 
-def make_sourceid2email(oneroster_users):
-    mapping = {}
-    for i in range(0, len(oneroster_users['sourceId'])):
-        if oneroster_users["sourceId"][i] != "nan":            
-            mapping[oneroster_users["sourceId"][i]] = oneroster_users["email"][i]
-    return mapping
+    sourceid_2_email = all_raw_dfs['or_users'][['email', 'sourceId']]
+    demographic_df = pd.merge(sourceid_2_email, demographic_df, on='sourceId')
+    email_2_uuid = all_raw_dfs['cli_users'][['email', 'uuid']]
+    demographic_df = pd.merge(email_2_uuid, demographic_df, on='email')
+
+    demographic_df.rename(columns={'uuid': 'user_uuid'}, inplace=True)
+
+    demographic_df = demographic_df[
+        ['user_uuid', 'birth_date', 'sex',
+         'american_indian_or_alaska_native', 'asian',
+         'black_or_african_american',
+         'native_hawaiian_or_other_pacific_islander', 'white',
+         'demographic_race_two_or_more_races', 'hispanic_or_latino_ethnicity']]
+
+    for item in demographic_df.to_dict(orient='records'):
+        assert (Demographic.parse_obj(item))
+
+    return demographic_df
 
 
-def create_models(
-    output_path, cli_grades, cli_users, oneroster_demographics, oneroster_users, 
-):
-    sourceid_2_email = make_sourceid2email(oneroster_users)
-    userid_2_email = make_userid2email(cli_users)
-    email_2_uuid = make_email2uuid(cli_users)
-    name_2_assessmentId = make_name2assessmentID(cli_grades)
+def scrub_raw_dfs(all_raw_dfs):
+    or_users_df = all_raw_dfs['or_users']
+    cli_users_df = all_raw_dfs['cli_users']
 
-    demographics_df = demographics_model(oneroster_demographics,sourceid_2_email, email_2_uuid)
-    users_df = users_model(oneroster_users, sourceid_2_email, email_2_uuid)
-    grades_df = grades_model(cli_grades, userid_2_email, email_2_uuid, name_2_assessmentId)
-    enrollments_df = enrollments_model(cli_users, email_2_uuid)
-    courses_df = courses_model(cli_users)
-    assessments_df = assessment_model(name_2_assessmentId)
+    or_users_df['email'] = or_users_df['email'].apply(
+        lambda col: col.lower())
+    cli_users_df['email'] = cli_users_df['email'].apply(
+        lambda col: col.lower())
 
-    with open(f"{output_path}/demographics.csv", "w") as f:
+    grade_df = all_raw_dfs['grades']
+    grade_df = grade_df[grade_df['assessment_name'].notnull()]
+
+    all_raw_dfs['or_users'] = or_users_df
+    all_raw_dfs['cli_users'] = cli_users_df
+    all_raw_dfs['grades'] = grade_df
+
+    return all_raw_dfs
+
+
+def create_models(output_path, all_raw_dfs):
+
+    clean_raw_df = scrub_raw_dfs(all_raw_dfs)
+
+    demographics_df = demographics_model(clean_raw_df)
+    assessments_df, grades_df = assessments_and_grades_model(clean_raw_df)
+    users_df = users_model(clean_raw_df)
+    enrollments_df = enrollments_model(clean_raw_df)
+    courses_df = courses_model(clean_raw_df)
+
+    with open(f"{output_path}/oneroster_demographics.csv", "w") as f:
         demographics_df.to_csv(f, index=False, header=True)
     with open(f"{output_path}/users.csv", "w") as f:
         users_df.to_csv(f, index=False, header=True)
@@ -234,35 +251,66 @@ def create_models(
     with open(f"{output_path}/courses.csv", "w") as f:
         courses_df.to_csv(f, index=False, header=True)
     with open(f"{output_path}/assessments.csv", "w") as f:
-        assessments_df.to_csv(f, index=False, header=True, quoting=QUOTE_NONE, escapechar='\\')
+        assessments_df.to_csv(f, index=False, header=True)
 
 
-def collect_HISD_oneroster_data(bucket, key):
+def generate_grade_df(grade_dict):
+    grade_data = []
+    for course_id in grade_dict.keys():
+        for user in grade_dict[course_id]['usergrades']:
+            for grade in user['gradeitems']:
+                grade_data.append({
+                    'user_id': user['userid'],
+                    'grade_percentage': grade['percentageformatted'],
+                    'assessment_name': grade['itemname'],
+                    'course_id': course_id
+                })
+    return pd.DataFrame(grade_data)
+
+
+def generate_enrollment_df(users_dict):
+    enrollment_data = []
+    for course_id in users_dict.keys():
+        for user in users_dict[course_id]:
+            enrollment_data.append({
+                'user_id': user['id'],
+                'course_id': course_id,
+                'role': user['roles'][0]['shortname']
+            })
+    return pd.DataFrame(enrollment_data)
+
+
+def generate_courses_df(users_dict):
+    course_data = []
+    for course_id in users_dict.keys():
+        enrolled = users_dict[course_id][0]['enrolledcourses']
+        for course in enrolled:
+            if course['id'] == course_id:
+                course_data.append({
+                    'id': course['id'],
+                    'name': course['fullname']
+                    })
+    return pd.DataFrame(course_data)
+
+
+def generate_users_df(users_dict):
+    user_data = []
+    for course_id in users_dict.keys():
+        for user in users_dict[course_id]:
+            user_data.append({
+                "first_name": user['firstname'],
+                "last_name": user['lastname'],
+                "email": user['email'],
+                "user_id": user['id'],
+                "uuid": uuid4()
+            })
+    return pd.DataFrame(user_data)
+
+
+def collect_cli_dfs(bucket, prefix):
+    grades_dict, users_dict = {}, {}
     s3_client = boto3.client("s3")
-    data = s3_client.get_object(
-        Bucket=bucket,
-        Key=key
-    )
-    dfs = {}
-    zipfile_data = data["Body"].read()
-    zf = ZipFile(BytesIO(zipfile_data))
-    for name in zf.namelist():
-        if "__MACOSX/" in name:
-            continue
-        dfs[name] = pd.read_csv(BytesIO(zf.read(name)))
-
-    for key in dfs:
-        if "demographics.csv" in key:
-            demographics = dfs[key].to_dict('list')
-        if "users.csv" in key:
-            users = dfs[key].to_dict('list')
-    return demographics, users
-
-
-def collect_cli_data(bucket, prefix):
-    grade_dict, users_dict = {}, {}
-    s3_client = boto3.client("s3")
-    # Note that these will only get 1000 classes at a time 
+    # Note that these will only get 1000 classes at a time
     grade_data_objects = s3_client.list_objects(
         Bucket=bucket,
         Prefix=f"{prefix}/grades"
@@ -279,7 +327,7 @@ def collect_cli_data(bucket, prefix):
             Key=object_key
         )
         contents = data["Body"].read()
-        grade_dict[course_id] = json.loads(contents)
+        grades_dict[int(course_id)] = json.loads(contents)
 
     for data_object in users_data_objects.get("Contents"):
         object_key = data_object.get("Key")
@@ -289,27 +337,51 @@ def collect_cli_data(bucket, prefix):
             Key=object_key
         )
         contents = data["Body"].read()
-        users_dict[course_id] = json.loads(contents)
+        users_dict[int(course_id)] = json.loads(contents)
 
-    return grade_dict, users_dict
+    return {
+        'cli_users': generate_users_df(users_dict),
+        'courses': generate_courses_df(users_dict),
+        'enrollments': generate_enrollment_df(users_dict),
+        'grades': generate_grade_df(grades_dict)
+    }
+
+
+def collect_oneroster_dfs(bucket, key):
+    s3_client = boto3.client("s3")
+    data = s3_client.get_object(
+        Bucket=bucket,
+        Key=key)
+
+    dfs = {}
+    zipfile_data = data["Body"].read()
+    zf = ZipFile(BytesIO(zipfile_data))
+    for name in zf.namelist():
+        if name == 'demographics.csv':
+            types = {
+                'americanIndianOrAlaskaNative': str,
+                'asian': str,
+                'blackOrAfricanAmerican': str,
+                'naitiveHawaiianOrPacificIslander': str,
+                'white': str,
+                'demographicRaceTwoOrMoreRaces': str,
+                'hispanicOrLatinoEthnicity': str
+                }
+            dfs[name] = pd.read_csv(BytesIO(zf.read(name)), dtype=types)
+        else:
+            dfs[name] = pd.read_csv(BytesIO(zf.read(name)))
+
+    return {
+        'demographics': dfs['demographics.csv'],
+        'or_users': dfs['users.csv']
+    }
 
 
 def compile_models(cli_bucket, cli_key, oneroster_bucket, oneroster_key):
-    oneroster_demographics, oneroster_users = \
-        collect_HISD_oneroster_data(
-            oneroster_bucket,
-            oneroster_key
-            )
-    cli_grades, cli_users = collect_cli_data(cli_bucket, cli_key)
-    output_path = os.environ["OUTPUT_DIR"]
-
-    create_models(
-        output_path,
-        cli_grades,
-        cli_users,
-        oneroster_demographics,
-        oneroster_users,
-        )
+    oneroster_dfs = collect_oneroster_dfs(oneroster_bucket, oneroster_key)
+    cli_dfs = collect_cli_dfs(cli_bucket, cli_key)
+    all_raw_dfs = oneroster_dfs | cli_dfs
+    return all_raw_dfs
 
 
 def main():
@@ -324,11 +396,15 @@ def main():
                         help='key + filename for one roster data')
     args = parser.parse_args()
 
-    compile_models(
+    output_path = os.environ["CSV_OUTPUT_DIR"]
+
+    all_raw_dfs = compile_models(
         args.cli_data_bucket,
         args.cli_data_prefix,
         args.oneroster_bucket,
         args.oneroster_key)
+
+    create_models(output_path, all_raw_dfs)
 
 
 if __name__ == "__main__":  # pragma: no cover
