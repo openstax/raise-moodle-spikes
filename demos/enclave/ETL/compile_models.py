@@ -241,17 +241,17 @@ def create_models(output_path, all_raw_dfs):
     courses_df = courses_model(clean_raw_df)
 
     with open(f"{output_path}/oneroster_demographics.csv", "w") as f:
-        demographics_df.to_csv(f, index=False, header=True)
+        demographics_df.to_csv(f, index=False)
     with open(f"{output_path}/users.csv", "w") as f:
-        users_df.to_csv(f, index=False, header=True)
+        users_df.to_csv(f, index=False)
     with open(f"{output_path}/grades.csv", "w") as f:
-        grades_df.to_csv(f, index=False, header=True)
+        grades_df.to_csv(f, index=False)
     with open(f"{output_path}/enrollments.csv", "w") as f:
-        enrollments_df.to_csv(f, index=False, header=True)
+        enrollments_df.to_csv(f, index=False)
     with open(f"{output_path}/courses.csv", "w") as f:
-        courses_df.to_csv(f, index=False, header=True)
+        courses_df.to_csv(f, index=False)
     with open(f"{output_path}/assessments.csv", "w") as f:
-        assessments_df.to_csv(f, index=False, header=True)
+        assessments_df.to_csv(f, index=False)
 
 
 def generate_grade_df(grade_dict):
