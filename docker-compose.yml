@@ -28,6 +28,8 @@ services:
       - 8000:80
     depends_on:
       - postgres
+    # command: ["./wait-for-it.sh", "postgres:5432"]
+
     extra_hosts:
       - "host.docker.internal:host-gateway"
   cron:
