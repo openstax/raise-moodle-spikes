@@ -2,6 +2,7 @@ from datetime import datetime
 import json
 from typing import Literal
 from uuid import UUID, uuid4
+from math import isnan
 import os
 import boto3
 import argparse
@@ -64,7 +65,7 @@ class Enrollment(BaseModel):
         extra = Extra.forbid
 
 
-class Grades(BaseModel):
+class Grade(BaseModel):
     assessment_id: int
     user_uuid: UUID
     course_id: int
@@ -75,6 +76,8 @@ class Grades(BaseModel):
 
     @validator('grade_percentage')
     def grade_value(cls, v):
+        if isnan(v):
+            raise ValueError(f'Grade value is nan')
         if v < 0.0 or v > 100.0:
             raise ValueError(f'Grade value {v} is out of expected range')
         return v
@@ -94,7 +97,7 @@ def courses_model(clean_raw_df):
     courses_df = clean_raw_df['courses']
 
     for item in courses_df.to_dict(orient='records'):
-        assert (Course.parse_obj(item))
+        Course.parse_obj(item)
 
     return courses_df
 
@@ -107,7 +110,7 @@ def enrollments_model(clean_raw_df):
     enrollments_df = enrollments_df[['user_uuid', 'course_id', 'role']]
 
     for item in enrollments_df.to_dict(orient='records'):
-        assert (Enrollment.parse_obj(item))
+        Enrollment.parse_obj(item)
 
     return enrollments_df
 
@@ -117,7 +120,7 @@ def users_model(clean_raw_df):
     users_df = users_df[['uuid', 'first_name', 'last_name', 'email']]
 
     for item in users_df.to_dict(orient='records'):
-        assert (User.parse_obj(item))
+        User.parse_obj(item)
 
     return users_df
 
@@ -148,10 +151,12 @@ def assessments_and_grades_model(clean_raw_df):
         convert_percentage
     )
 
+    grades_df = grades_df[grades_df['grade_percentage'].notnull()]
+
     for item in assessments_df.to_dict(orient='records'):
-        assert (Assessment.parse_obj(item))
+        Assessment.parse_obj(item)
     for item in grades_df.to_dict(orient='records'):
-        assert (Grades.parse_obj(item))
+        Grade.parse_obj(item)
 
     return assessments_df, grades_df
 
@@ -163,30 +168,15 @@ def demographics_model(all_raw_dfs):
     demographic_df.rename(
         columns={
             'birthDate':
-            'birth_date'
-        }, inplace=True)
-    demographic_df.rename(
-        columns={
+            'birth_date',
             'americanIndianOrAlaskaNative':
-            'american_indian_or_alaska_native'
-        }, inplace=True)
-    demographic_df.rename(
-        columns={
+            'american_indian_or_alaska_native',
             'blackOrAfricanAmerican':
-            'black_or_african_american'
-        }, inplace=True)
-    demographic_df.rename(
-        columns={
+            'black_or_african_american',
             'naitiveHawaiianOrPacificIslander':
-            'native_hawaiian_or_other_pacific_islander'
-        }, inplace=True)
-    demographic_df.rename(
-        columns={
+            'native_hawaiian_or_other_pacific_islander',
             'demographicRaceTwoOrMoreRaces':
-            'demographic_race_two_or_more_races'
-        }, inplace=True)
-    demographic_df.rename(
-        columns={
+            'demographic_race_two_or_more_races',
             'hispanicOrLatinoEthnicity':
             'hispanic_or_latino_ethnicity'
         }, inplace=True)
@@ -206,7 +196,7 @@ def demographics_model(all_raw_dfs):
          'demographic_race_two_or_more_races', 'hispanic_or_latino_ethnicity']]
 
     for item in demographic_df.to_dict(orient='records'):
-        assert (Demographic.parse_obj(item))
+        Demographic.parse_obj(item)
 
     return demographic_df
 
@@ -240,17 +230,17 @@ def create_models(output_path, all_raw_dfs):
     enrollments_df = enrollments_model(clean_raw_df)
     courses_df = courses_model(clean_raw_df)
 
-    with open(f"{output_path}/oneroster_demographics.csv", "w") as f:
+    with open(f"{output_path}/{MODEL_FILE_ONEROSTER_DEMOGRAPHICS}", "w") as f:
         demographics_df.to_csv(f, index=False)
-    with open(f"{output_path}/users.csv", "w") as f:
+    with open(f"{output_path}/{MODEL_FILE_USERS}", "w") as f:
         users_df.to_csv(f, index=False)
-    with open(f"{output_path}/grades.csv", "w") as f:
+    with open(f"{output_path}/{MODEL_FILE_GRADES}", "w") as f:
         grades_df.to_csv(f, index=False)
-    with open(f"{output_path}/enrollments.csv", "w") as f:
+    with open(f"{output_path}/{MODEL_FILE_ENROLLMENTS}", "w") as f:
         enrollments_df.to_csv(f, index=False)
-    with open(f"{output_path}/courses.csv", "w") as f:
+    with open(f"{output_path}/{MODEL_FILE_COURSES}", "w") as f:
         courses_df.to_csv(f, index=False)
-    with open(f"{output_path}/assessments.csv", "w") as f:
+    with open(f"{output_path}/{MODEL_FILE_ASSESSMENTS}", "w") as f:
         assessments_df.to_csv(f, index=False)
 
 
