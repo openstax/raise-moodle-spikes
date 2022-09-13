@@ -32,13 +32,46 @@ class ContentData(BaseModel):
     content: List[ContentItem]
 
 
+def get_variants_json_from_uuid(html_directory, content_id):
+    if not Path(f"{html_directory}/{content_id}.html").is_file():
+        return None
+    else:
+        variant_list = []
+        with open(f"{html_directory}/{content_id}.html") as f:
+            file_content = f.read()
+            variant_list.append({"variant": "main", "html": file_content})
+
+        if Path(f'{html_directory}/{content_id}').is_dir():
+            dir_path = Path(f"{html_directory}/{content_id}")
+            for f_name in dir_path.iterdir():
+                with open(dir_path / f"{f_name.name}") as variant_file:
+                    variant_list.append(
+                        {
+                            "variant": f"{Path(f_name.name).stem}",
+                            "html": variant_file.read()
+                        }
+                    )
+
+        json_content = {
+            "id": content_id,
+            "content": variant_list
+        }
+        return json_content
+
+
 @app.get("/contents/{content_id}.json", response_model=ContentData)
 async def create_event(content_id):
-    maybe_html_data = Path(HTML_DATA_PATH) / f"{content_id}.html"
-    if maybe_html_data.exists():
-        content = maybe_html_data.read_text(encoding="utf-8")
-    else:
+    data = get_variants_json_from_uuid(HTML_DATA_PATH, content_id)
+
+    items = []
+    if data is None:
         content = DEFAULT_CONTENT_TEMPLATE.format(content_id)
-    content_item = ContentItem(variant="main", html=content)
-    data = ContentData(id=content_id, content=[content_item])
-    return data
+        items.append(ContentItem(variant='main', html=content))
+    else:
+        for variant_obj in data["content"]:
+            name = variant_obj["variant"]
+            html = variant_obj["html"]
+            items.append(ContentItem(variant=name, html=html))
+    print(f"ITEMS: {items}")
+    package = ContentData(id=content_id, content=items)
+    return package
