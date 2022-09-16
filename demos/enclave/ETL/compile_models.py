@@ -285,15 +285,21 @@ def generate_courses_df(users_dict):
 
 def generate_users_df(users_dict):
     user_data = []
+    # Use email addresses to de-duplicate users
+    seen_users = set()
+
     for course_id in users_dict.keys():
         for user in users_dict[course_id]:
-            user_data.append({
-                "first_name": user['firstname'],
-                "last_name": user['lastname'],
-                "email": user['email'],
-                "user_id": user['id'],
-                "uuid": uuid4()
-            })
+            user_email = user['email']
+            if user_email not in seen_users:
+                seen_users.add(user_email)
+                user_data.append({
+                    "first_name": user['firstname'],
+                    "last_name": user['lastname'],
+                    "email": user_email,
+                    "user_id": user['id'],
+                    "uuid": uuid4()
+                })
     return pd.DataFrame(user_data)
 
 
