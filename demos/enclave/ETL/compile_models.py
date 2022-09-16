@@ -14,7 +14,7 @@ from pydantic import BaseModel, Extra, validator
 MODEL_FILE_USERS = "users.csv"
 MODEL_FILE_COURSES = "courses.csv"
 MODEL_FILE_ONEROSTER_DEMOGRAPHICS = "oneroster_demographics.csv"
-MODEL_FILE_ENROLLMENTS = "enrolments.csv"
+MODEL_FILE_ENROLLMENTS = "enrollments.csv"
 MODEL_FILE_ASSESSMENTS = "assessments.csv"
 MODEL_FILE_GRADES = "grades.csv"
 
