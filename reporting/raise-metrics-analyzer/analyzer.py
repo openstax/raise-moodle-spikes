@@ -66,6 +66,7 @@ def get_wau(users_data):
 
 def run_analysis(s3_bucket, user_data_prefix):
     users_by_course = get_user_json_by_course(s3_bucket, user_data_prefix)
+    date_value = datetime.today().strftime("%m/%d/%y")
     result_data = []
 
     for course_id, users_data in users_by_course.items():
@@ -73,6 +74,7 @@ def run_analysis(s3_bucket, user_data_prefix):
         enrolled_students = get_enrolled_students(users_data)
         wau = get_wau(users_data)
         result_data.append({
+            "date": date_value,
             "course_id": course_id,
             "course_name": course_name,
             "enrolled_students": enrolled_students,
@@ -96,13 +98,23 @@ def main():
         args.user_data_prefix
     )
 
-    with open(output_csv_file, "w") as output_file:
-        writer = csv.DictWriter(
-            output_file,
-            output_data[0].keys()
-        )
-        writer.writeheader()
-        writer.writerows(output_data)
+    if output_csv_file.exists():
+        # Append to existing CSV
+        with open(output_csv_file, "a") as output_file:
+            writer = csv.DictWriter(
+                output_file,
+                output_data[0].keys()
+            )
+            writer.writerows(output_data)
+    else:
+        # Write new CSV
+        with open(output_csv_file, "w") as output_file:
+            writer = csv.DictWriter(
+                output_file,
+                output_data[0].keys()
+            )
+            writer.writeheader()
+            writer.writerows(output_data)
 
 
 if __name__ == "__main__":
