@@ -173,7 +173,7 @@ def demographics_model(all_raw_dfs):
             'american_indian_or_alaska_native',
             'blackOrAfricanAmerican':
             'black_or_african_american',
-            'naitiveHawaiianOrPacificIslander':
+            'nativeHawaiianOrOtherPacificIslander':
             'native_hawaiian_or_other_pacific_islander',
             'demographicRaceTwoOrMoreRaces':
             'demographic_race_two_or_more_races',
@@ -181,8 +181,8 @@ def demographics_model(all_raw_dfs):
             'hispanic_or_latino_ethnicity'
         }, inplace=True)
 
-    sourceid_2_email = all_raw_dfs['or_users'][['email', 'sourceId']]
-    demographic_df = pd.merge(sourceid_2_email, demographic_df, on='sourceId')
+    sourcedid_2_email = all_raw_dfs['or_users'][['email', 'sourcedId']]
+    demographic_df = pd.merge(sourcedid_2_email, demographic_df, on='sourcedId')
     email_2_uuid = all_raw_dfs['cli_users'][['email', 'uuid']]
     demographic_df = pd.merge(email_2_uuid, demographic_df, on='email')
 
@@ -347,19 +347,22 @@ def collect_oneroster_dfs(bucket, key):
     zipfile_data = data["Body"].read()
     zf = ZipFile(BytesIO(zipfile_data))
     for name in zf.namelist():
+        common_types = {
+            'sourcedId': str
+        }
         if name == 'demographics.csv':
-            types = {
+            types = common_types | {
                 'americanIndianOrAlaskaNative': str,
                 'asian': str,
                 'blackOrAfricanAmerican': str,
-                'naitiveHawaiianOrPacificIslander': str,
+                'nativeHawaiianOrOtherPacificIslander': str,
                 'white': str,
                 'demographicRaceTwoOrMoreRaces': str,
                 'hispanicOrLatinoEthnicity': str
                 }
             dfs[name] = pd.read_csv(BytesIO(zf.read(name)), dtype=types)
         else:
-            dfs[name] = pd.read_csv(BytesIO(zf.read(name)))
+            dfs[name] = pd.read_csv(BytesIO(zf.read(name)), dtype=common_types)
 
     return {
         'demographics': dfs['demographics.csv'],
