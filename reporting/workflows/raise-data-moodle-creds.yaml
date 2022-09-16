@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: raise-data-moodle-creds
+type: Opaque
+stringData:
+  token: sometokenvalue
