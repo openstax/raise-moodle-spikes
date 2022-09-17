@@ -4,6 +4,7 @@ import json
 import csv
 from pathlib import Path
 from datetime import datetime, timedelta
+from pytz import timezone
 
 
 def get_user_json_by_course(s3_bucket, user_data_prefix):
@@ -66,7 +67,8 @@ def get_wau(users_data):
 
 def run_analysis(s3_bucket, user_data_prefix):
     users_by_course = get_user_json_by_course(s3_bucket, user_data_prefix)
-    date_value = datetime.today().strftime("%m/%d/%y")
+    central_tz = timezone('America/Chicago')
+    date_value = datetime.today().astimezone(central_tz).strftime("%m/%d/%y")
     result_data = []
 
     for course_id, users_data in users_by_course.items():
