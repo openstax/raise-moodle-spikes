@@ -54,15 +54,21 @@ def get_enrolled_students(users_data):
     return enrolled_students
 
 
-def get_wau(users_data):
+def get_au_metrics(users_data):
     wau = 0
+    dau = 0
     for user in users_data:
         # This is a unix timestamp or 0
         lastaccess = user["lastcourseaccess"]
         time_since_access = datetime.now() - datetime.fromtimestamp(lastaccess)
         if time_since_access < timedelta(days=7):
             wau += 1
-    return wau
+        if time_since_access < timedelta(days=1):
+            dau += 1
+    return {
+        "wau": wau,
+        "dau": dau
+    }
 
 
 def run_analysis(s3_bucket, user_data_prefix):
@@ -74,13 +80,14 @@ def run_analysis(s3_bucket, user_data_prefix):
     for course_id, users_data in users_by_course.items():
         course_name = get_course_name(course_id, users_data)
         enrolled_students = get_enrolled_students(users_data)
-        wau = get_wau(users_data)
+        au_metrics = get_au_metrics(users_data)
         result_data.append({
             "date": date_value,
             "course_id": course_id,
             "course_name": course_name,
             "enrolled_students": enrolled_students,
-            "weekly_active_users": wau
+            "weekly_active_users": au_metrics["wau"],
+            "daily_active_users": au_metrics["dau"]
         })
 
     return result_data
