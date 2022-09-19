@@ -72,6 +72,5 @@ async def create_event(content_id):
             name = variant_obj["variant"]
             html = variant_obj["html"]
             items.append(ContentItem(variant=name, html=html))
-    print(f"ITEMS: {items}")
     package = ContentData(id=content_id, content=items)
     return package
