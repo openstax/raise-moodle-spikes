@@ -4,6 +4,7 @@ import json
 import csv
 from pathlib import Path
 from datetime import datetime, timedelta
+from pytz import timezone
 
 
 def get_user_json_by_course(s3_bucket, user_data_prefix):
@@ -53,30 +54,40 @@ def get_enrolled_students(users_data):
     return enrolled_students
 
 
-def get_wau(users_data):
+def get_au_metrics(users_data):
     wau = 0
+    dau = 0
     for user in users_data:
         # This is a unix timestamp or 0
         lastaccess = user["lastcourseaccess"]
         time_since_access = datetime.now() - datetime.fromtimestamp(lastaccess)
         if time_since_access < timedelta(days=7):
             wau += 1
-    return wau
+        if time_since_access < timedelta(days=1):
+            dau += 1
+    return {
+        "wau": wau,
+        "dau": dau
+    }
 
 
 def run_analysis(s3_bucket, user_data_prefix):
     users_by_course = get_user_json_by_course(s3_bucket, user_data_prefix)
+    central_tz = timezone('America/Chicago')
+    date_value = datetime.today().astimezone(central_tz).strftime("%m/%d/%y")
     result_data = []
 
     for course_id, users_data in users_by_course.items():
         course_name = get_course_name(course_id, users_data)
         enrolled_students = get_enrolled_students(users_data)
-        wau = get_wau(users_data)
+        au_metrics = get_au_metrics(users_data)
         result_data.append({
+            "date": date_value,
             "course_id": course_id,
             "course_name": course_name,
             "enrolled_students": enrolled_students,
-            "weekly_active_users": wau
+            "weekly_active_users": au_metrics["wau"],
+            "daily_active_users": au_metrics["dau"]
         })
 
     return result_data
@@ -96,13 +107,23 @@ def main():
         args.user_data_prefix
     )
 
-    with open(output_csv_file, "w") as output_file:
-        writer = csv.DictWriter(
-            output_file,
-            output_data[0].keys()
-        )
-        writer.writeheader()
-        writer.writerows(output_data)
+    if output_csv_file.exists():
+        # Append to existing CSV
+        with open(output_csv_file, "a") as output_file:
+            writer = csv.DictWriter(
+                output_file,
+                output_data[0].keys()
+            )
+            writer.writerows(output_data)
+    else:
+        # Write new CSV
+        with open(output_csv_file, "w") as output_file:
+            writer = csv.DictWriter(
+                output_file,
+                output_data[0].keys()
+            )
+            writer.writeheader()
+            writer.writerows(output_data)
 
 
 if __name__ == "__main__":
