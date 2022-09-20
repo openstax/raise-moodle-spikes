@@ -17,9 +17,9 @@ RUN find /var/www/html/. -name .git | xargs rm -rf
 RUN chown -R www-data:www-data /var/www/html/
 
 RUN apt-get update && apt-get install -y cron
-COPY wait-for-it.sh wait-for-it.sh
-RUN chmod +x wait-for-it.sh
 
+COPY moodle/wait-for-it.sh wait-for-it.sh
+RUN chmod +x wait-for-it.sh
 
 COPY moodle/moodle-config.php /var/www/html/config.php
 COPY moodle/php.ini-development /usr/local/etc/php/php.ini
