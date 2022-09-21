@@ -32,11 +32,13 @@ spec:
                   key: password
             - name: POSTGRES_DB
               value: {{ .Values.dbName }}
+            - name: PGDATA
+              value: "/var/lib/postgresql/data/pgdata"
           ports:
             - containerPort: 5432
           volumeMounts:
             - name: pgdata
-              mountPath: "/var/lib/postgresql"
+              mountPath: "/var/lib/postgresql/data"
       volumes:
         - name: pgdata
           persistentVolumeClaim:
