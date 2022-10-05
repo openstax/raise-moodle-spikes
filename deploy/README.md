@@ -29,8 +29,6 @@ $ export TAG=<tagvalue>
 $ aws ecr get-login-password | docker login --username AWS --password-stdin $REPOHOST
 $ docker build ../. --platform=linux/amd64 -f ../moodle/Dockerfile -t $REPOHOST/moodle:$TAG
 $ docker push $REPOHOST/moodle:$TAG
-$ docker build ../services/eventsapi/. --platform=linux/amd64 -t $REPOHOST/moodle-eventsapi:$TAG
-$ docker push $REPOHOST/moodle-eventsapi:$TAG
 ```
 
 ### Deploying with Helm

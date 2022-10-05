@@ -39,10 +39,6 @@ spec:
               value: {{ .Values.moodleDataRoot }}
             - name: MOODLE_DOCKER_WWWROOT
               value: {{ .Values.moodleWebRoot }}
-            {{- if .Values.enableEventsApi }}
-            - name: EVENTSAPI_SERVER
-              value: {{ .Chart.Name }}-eventsapi-{{ .Values.deploymentName }}
-            {{- end }}
             {{- if .Values.enableMailhog }}
             - name: MOODLE_DOCKER_SMTPHOST
               value: {{ .Chart.Name }}-mailhog-{{ .Values.deploymentName }}:1025
