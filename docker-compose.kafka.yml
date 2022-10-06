@@ -40,10 +40,6 @@ services:
     networks:
       - raisemoodle
 
-  eventsapi:
-    environment:
-      KAFKA_BROKERS: "kafka:29092"
-
 volumes:
   zkdata:
   zkdatalog:
