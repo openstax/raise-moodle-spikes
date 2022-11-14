@@ -30,7 +30,7 @@ TMP_MBZ="${DIR}/../tmp.mbz"
 
 cp "$input_file" "$TMP_MBZ"
 docker compose down -v
-docker compose up -d moodle
+docker compose up --build -d moodle
 docker compose exec moodle ./wait-for-it.sh postgres:5432 -- php admin/cli/install_database.php --agree-license --fullname="Local Dev" --shortname="Local Dev" --summary="Local Dev" --adminpass="admin" --adminemail="admin@acmeinc.com"
 # Run our slightly modified backup script instead of the one included with Moodle
 docker compose exec moodle php /repo/scripts/restore_backup_as_admin.php --file=/repo/tmp.mbz --categoryid=1
