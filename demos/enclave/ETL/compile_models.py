@@ -70,6 +70,7 @@ class Grade(BaseModel):
     user_uuid: UUID
     course_id: int
     grade_percentage: float
+    time_submitted: int
 
     class Config:
         extra = Extra.forbid
@@ -77,7 +78,7 @@ class Grade(BaseModel):
     @validator('grade_percentage')
     def grade_value(cls, v):
         if isnan(v):
-            raise ValueError(f'Grade value is nan')
+            raise ValueError('Grade value is nan')
         if v < 0.0 or v > 100.0:
             raise ValueError(f'Grade value {v} is out of expected range')
         return v
@@ -139,7 +140,12 @@ def assessments_and_grades_model(clean_raw_df):
     grades_df = pd.merge(grades_df, cli_users, on='user_id')
     grades_df.rename(columns={'uuid': 'user_uuid'}, inplace=True)
     grades_df = grades_df[
-        ['assessment_id', 'user_uuid', 'course_id', 'grade_percentage']
+        ['assessment_id',
+         'user_uuid',
+         'course_id',
+         'grade_percentage',
+         'time_submitted'
+         ]
     ]
 
     def convert_percentage(x):
@@ -150,8 +156,8 @@ def assessments_and_grades_model(clean_raw_df):
     grades_df['grade_percentage'] = grades_df['grade_percentage'].map(
         convert_percentage
     )
-
     grades_df = grades_df[grades_df['grade_percentage'].notnull()]
+    grades_df['time_submitted'] = grades_df['time_submitted'].astype(int)
 
     for item in assessments_df.to_dict(orient='records'):
         Assessment.parse_obj(item)
@@ -181,8 +187,8 @@ def demographics_model(all_raw_dfs):
             'hispanic_or_latino_ethnicity'
         }, inplace=True)
 
-    sourcedid_2_email = all_raw_dfs['or_users'][['email', 'sourcedId']]
-    demographic_df = pd.merge(sourcedid_2_email, demographic_df, on='sourcedId')
+    id_2_email = all_raw_dfs['or_users'][['email', 'sourcedId']]
+    demographic_df = pd.merge(id_2_email, demographic_df, on='sourcedId')
     email_2_uuid = all_raw_dfs['cli_users'][['email', 'uuid']]
     demographic_df = pd.merge(email_2_uuid, demographic_df, on='email')
 
@@ -253,7 +259,8 @@ def generate_grade_df(grade_dict):
                     'user_id': user['userid'],
                     'grade_percentage': grade['percentageformatted'],
                     'assessment_name': grade['itemname'],
-                    'course_id': course_id
+                    'course_id': course_id,
+                    'time_submitted': grade['gradedatesubmitted']
                 })
     return pd.DataFrame(grade_data)
 
