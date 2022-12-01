@@ -28,12 +28,6 @@ $ docker-compose exec moodle php admin/cli/install_database.php --agree-license 
 
 The site will then be available at [http://localhost:8000/](http://localhost:8000/).
 
-You can use the following command if you want to deploy `kafka` and related services
-(These services are separated to optimize for the current common case):
-
-```bash
-$ docker-compose -f docker-compose.yml -f docker-compose.kafka.yml up -d 
-```
 ### Setup pgadmin to view moodle database
 
 To log into the server go to [http://localhost:5050/](http://localhost:5050/)
