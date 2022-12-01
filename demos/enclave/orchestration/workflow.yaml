@@ -15,21 +15,28 @@ spec:
           storage: 1Gi
   templates:
   - name: setup
+    serviceAccountName: raise-developer
     container:
       image: rnathuji/raise-spikes-enclave-setup
-      command: ["./setup.sh"]
+      command:
+          - "bash"
+          - "-cxe"
+          - |
+            mkdir /data/enclave-input
+            mkdir /data/enclave-output
+            python ./compile_models.py raise-moodle-spikes enclave-spike-mock-data raise-moodle-spikes enclave-spike-mock-data/enclave_mock_raw_oneroster_data_clean.zip
       volumeMounts:
       - name: workdir
         mountPath: /data
       env:
-        - name: DATA_DIR # Passing this so setup can create desired structure in volume for subsequent stages
-          value: /data
         - name: CSV_OUTPUT_DIR
           value: /data/enclave-input
   - name: analyze
+    serviceAccountName: raise-developer
     container:
       image: rnathuji/raise-spikes-enclave-analyzer
-      command: ["python", "./data_analysis.py"]
+      command: ["Rscript", "./fake_script.R"]
+      args: []
       volumeMounts:
       - name: workdir
         mountPath: /data
@@ -42,9 +49,14 @@ spec:
       labels:
         role: enclave
   - name: postprocess
+    serviceAccountName: raise-developer
     container:
       image: rnathuji/raise-spikes-enclave-postprocessor
-      command: ["./postprocess.sh"]
+      command:
+          - "bash"
+          - "-cxe"
+          - |
+            aws s3 cp --recursive /data/enclave-output/ s3://raise-moodle-spikes/enclave-spike-mock-data/demos/output/
       volumeMounts:
       - name: workdir
         mountPath: /data
