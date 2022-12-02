@@ -32,7 +32,6 @@ spec:
         - name: CSV_OUTPUT_DIR
           value: /data/enclave-input
   - name: analyze
-    serviceAccountName: raise-developer
     container:
       image: rnathuji/raise-spikes-enclave-analyzer
       command: ["Rscript", "./fake_script.R"]
