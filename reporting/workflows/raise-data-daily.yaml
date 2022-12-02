@@ -12,6 +12,7 @@ spec:
     entrypoint: flow
     templates:
     - name: push-users
+      serviceAccountName: raise-reporting
       container:
         image: 361171574891.dkr.ecr.us-east-1.amazonaws.com/raise-metrics-analyzer
         command:
@@ -29,6 +30,7 @@ spec:
                 name: raise-data-moodle-creds
                 key: token
     - name: push-grades
+      serviceAccountName: raise-reporting
       container:
         image: 361171574891.dkr.ecr.us-east-1.amazonaws.com/raise-metrics-analyzer
         command:
@@ -46,6 +48,7 @@ spec:
                 name: raise-data-moodle-creds
                 key: token
     - name: analyze
+      serviceAccountName: raise-reporting
       container:
         image: 361171574891.dkr.ecr.us-east-1.amazonaws.com/raise-metrics-analyzer
         command:
