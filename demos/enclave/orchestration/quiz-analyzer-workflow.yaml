@@ -24,7 +24,7 @@ spec:
           - |
             mkdir /data/enclave-input
             mkdir /data/enclave-output
-            compile-models raise-data algebra1/ay2022/moodle raise-sftp-home houstonisd-oneroster/RICE_OpenStax_1_1.zip
+            compile-models raise-data algebra1/ay2022 raise-sftp-home houstonisd-oneroster/RICE_OpenStax_1_1.zip
       volumeMounts:
       - name: workdir
         mountPath: /data
