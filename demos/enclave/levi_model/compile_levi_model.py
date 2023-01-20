@@ -14,6 +14,9 @@ quiz_question_contents = pd.read_csv(
 quiz_multichoice_answers = pd.read_csv(
     f'{INPUT_PATH}/quiz_multichoice_answers.csv'
 )
+assessments = pd.read_csv(
+    f'{INPUT_PATH}/assessments.csv'
+)
 
 merged_data = pd.merge(
     quiz_questions, quiz_question_contents,
@@ -21,6 +24,11 @@ merged_data = pd.merge(
 )
 merged_data.pop('id')
 merged_data.rename(columns={'text': 'question_text'}, inplace=True)
+merged_data = pd.merge(
+    merged_data, assessments,
+    left_on="assessment_id", right_on="id"
+)
+merged_data.rename(columns={'name': 'quiz_name'}, inplace=True)
 
 answer_data = pd.merge(
     quiz_multichoice_answers, merged_data,
@@ -28,7 +36,8 @@ answer_data = pd.merge(
 )
 data_by_question = defaultdict(list)
 for index, row in answer_data.iterrows():
-    data_by_question[row['question_id']].append(row)
+    key = (row['quiz_name'], row['question_number'], row['question_id'])
+    data_by_question[key].append(row)
 
 headers = [
     "quiz_name",
@@ -59,7 +68,7 @@ for key in data_by_question.keys():
         feedback.append(answer["feedback"])
     item = data_by_question[key][0]
     new_row = pd.DataFrame({
-        "quiz_name": [item["assessment_id"]],
+        "quiz_name": [item["quiz_name"]],
         "question_number": [item["question_number"]],
         "question_id": [item["question_id"]],
         "question_text": [item["question_text"]],
