@@ -66,6 +66,8 @@ for key in data_by_question.keys():
         text.append(answer["text"])
         grade.append(answer["grade"])
         feedback.append(answer["feedback"])
+    if (len(data_by_question[key]) != 4):
+        continue
     item = data_by_question[key][0]
     new_row = pd.DataFrame({
         "quiz_name": [item["quiz_name"]],
