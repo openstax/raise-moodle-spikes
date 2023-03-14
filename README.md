@@ -8,7 +8,7 @@ The following table describes the directories in this repo:
 
 | Directory | Description |
 | - | - |
-| `moodle` | Docker files for building development Moodle images that can be deployed locally using `docker-compose` or on Kubernetes using `helm` |
+| `moodle` | Docker files for building development Moodle images that can be deployed locally using `docker compose` or on Kubernetes using `helm` |
 | `deploy` | Deployment automation code |
 | `plugins` | Moodle plugins |
 | `services` | Ancillary services used to implement / demonstrate functionality |
@@ -19,11 +19,11 @@ The following table describes the directories in this repo:
 
 ### Deploying a local environment
 
-You can use the following commands to get a basic local environment running using `docker-compose` (you may want to modify values in `.env` beforehand):
+You can use the following commands to get a basic local environment running using `docker compose` (you may want to modify values in `.env` beforehand):
 
 ```bash
-$ docker-compose up -d
-$ docker-compose exec moodle php admin/cli/install_database.php --agree-license --fullname="Local Dev" --shortname="Local Dev" --summary="Local Dev" --adminpass="admin" --adminemail="admin@acmeinc.com"
+$ docker compose up -d
+$ docker compose exec moodle php admin/cli/install_database.php --agree-license --fullname="Local Dev" --shortname="Local Dev" --summary="Local Dev" --adminpass="admin" --adminemail="admin@acmeinc.com"
 ```
 
 The site will then be available at [http://localhost:8000/](http://localhost:8000/).
@@ -71,8 +71,7 @@ You can configure your local development environment to debug Moodle in VScode u
 4. Setup `moodle` container for debugging:
 
 ```bash
-$ MOODLE_TARGET=dbg docker-compose build
-$ docker-compose up -d
+$ MOODLE_TARGET=dbg docker compose up --build -d
 ```
 
 #### Moodle settings for debugging
@@ -95,8 +94,9 @@ $ kubectl port-forward $(kubectl get po -l "app=raise-spikes-mailhog-<deployment
 Tests can be invoked after setting up `phpunit`:
 
 ```bash
-$ docker-compose exec moodle php admin/tool/phpunit/cli/init.php
-$ docker-compose exec moodle vendor/bin/phpunit --filter <testcase>
+$ docker compose exec moodle php admin/tool/phpunit/cli/init.php
+$ docker compose exec moodle vendor/bin/phpunit --testsuite local_raisecli_testsuite
+$ docker compose exec moodle vendor/bin/phpunit --testsuite local_raise_testsuite
 ```
 
 ### Creating a Moodle backup file for git storage
