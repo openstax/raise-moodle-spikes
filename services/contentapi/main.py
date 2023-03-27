@@ -61,7 +61,7 @@ def get_variants_json_from_uuid(html_directory, content_id):
 
 @app.get("/contents/{version_id}/{content_id}.json", response_model=ContentData)
 @app.get("/contents/{content_id}.json", response_model=ContentData)
-async def create_event(content_id):
+async def get_content(content_id):
     data = get_variants_json_from_uuid(HTML_DATA_PATH, content_id)
 
     items = []
