@@ -19,8 +19,8 @@ spec:
           - "bash"
           - "-cxe"
           - |
-            aws s3 cp s3://raise-data/algebra1/ay2022/automation/courses.csv courses.csv
-            moodle-cli export-bulk courses.csv raise-data algebra1/ay2022/moodle/users users
+            aws s3 cp s3://raise-data/algebra1/su2023/automation/courses.csv courses.csv
+            moodle-cli export-bulk courses.csv raise-data algebra1/su2023/moodle/users users
         env:
           - name: MOODLE_URL
             value: https://raiselearning.org
@@ -37,8 +37,8 @@ spec:
           - "bash"
           - "-cxe"
           - |
-            aws s3 cp s3://raise-data/algebra1/ay2022/automation/courses.csv courses.csv
-            moodle-cli export-bulk courses.csv raise-data algebra1/ay2022/moodle/grades grades
+            aws s3 cp s3://raise-data/algebra1/su2023/automation/courses.csv courses.csv
+            moodle-cli export-bulk courses.csv raise-data algebra1/su2023/moodle/grades grades
         env:
           - name: MOODLE_URL
             value: https://raiselearning.org
@@ -55,9 +55,9 @@ spec:
           - bash
           - -cxe
           - |
-            aws s3 cp s3://raise-data/algebra1/ay2022/automation/raise-data-analyzer/results.csv results.csv
-            python analyzer.py raise-data algebra1/ay2022/moodle/users results.csv
-            aws s3 cp results.csv s3://raise-data/algebra1/ay2022/automation/raise-data-analyzer/results.csv
+            aws s3 cp s3://raise-data/algebra1/su2023/automation/raise-data-analyzer/results.csv results.csv
+            python analyzer.py raise-data algebra1/su2023/moodle/users results.csv
+            aws s3 cp results.csv s3://raise-data/algebra1/su2023/automation/raise-data-analyzer/results.csv
     - name: flow
       dag:
         tasks:
