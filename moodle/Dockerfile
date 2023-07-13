@@ -4,6 +4,7 @@ ARG MOODLE_VERSION=v4.0.9
 ARG LOCAL_CODECHECKER_VERSION=v4.0.5
 ARG LOCAL_MOODLECHECK_VERSION=v1.1.5
 ARG TOOL_PLUGINSKEL_VERSION=1.5.3
+ARG TOOL_CERTIFICATE_VERSION=v4.2
 ARG LOCAL_RAISECLI_VERSION=2023061400
 ARG LOCAL_RAISE_VERSION=2022111400
 
@@ -13,6 +14,7 @@ RUN git clone --depth 1 https://github.com/moodle/moodle --branch $MOODLE_VERSIO
 RUN git clone --depth 1 https://github.com/moodlehq/moodle-local_codechecker.git --branch $LOCAL_CODECHECKER_VERSION /var/www/html/local/codechecker
 RUN git clone --depth 1 https://github.com/moodlehq/moodle-local_moodlecheck.git --branch $LOCAL_MOODLECHECK_VERSION /var/www/html/local/moodlecheck
 RUN git clone --depth 1 https://github.com/mudrd8mz/moodle-tool_pluginskel.git --branch $TOOL_PLUGINSKEL_VERSION /var/www/html/admin/tool/pluginskel
+RUN git clone --depth 1 https://github.com/moodleworkplace/moodle-tool_certificate --branch $TOOL_CERTIFICATE_VERSION /var/www/html/admin/tool/certificate
 RUN git clone --depth 1 https://github.com/openstax/moodle-local_raisecli.git --branch $LOCAL_RAISECLI_VERSION /var/www/html/local/raisecli
 RUN git clone --depth 1 https://github.com/openstax/moodle-local_raise.git --branch $LOCAL_RAISE_VERSION /var/www/html/local/raise
 RUN find /var/www/html/. -name .git | xargs rm -rf
