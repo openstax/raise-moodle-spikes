@@ -1,6 +1,6 @@
 {{- if hasPrefix "https" .Values.moodleWebRoot }}
 {{- $domain := trimPrefix "https://" .Values.moodleWebRoot -}}
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: {{ .Chart.Name }}-moodle-tls-{{ .Values.deploymentName }}
@@ -17,7 +17,7 @@ spec:
           port: 80
 
 ---
-apiVersion: traefik.containo.us/v1alpha1
+apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: {{ .Chart.Name }}-moodle-{{ .Values.deploymentName }}
