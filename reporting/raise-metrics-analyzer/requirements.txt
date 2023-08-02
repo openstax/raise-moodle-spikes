@@ -1,3 +1,0 @@
-awscli==1.27.98
-git+https://github.com/openstax/raise-moodlecli@bc0151e
-pytz==2022.2.1
