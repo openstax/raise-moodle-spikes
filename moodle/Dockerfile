@@ -32,7 +32,6 @@ RUN chmod 644 /etc/cron.d/moodle
 
 FROM base as dbg
 
-RUN pecl update-channels && pecl install xdebug
 COPY moodle/docker-php-ext-xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 RUN docker-php-ext-enable xdebug
 
