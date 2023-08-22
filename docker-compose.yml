@@ -47,7 +47,7 @@ services:
     build:
       context: services/contentapi
     volumes:
-      - ./services/contentapi/html:/html
+      - ./services/contentapi/:/content
     networks:
       - raisemoodle
     ports:
