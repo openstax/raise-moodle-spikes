@@ -1,14 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List
+from typing import List, Union, Dict
 from pathlib import Path
+import json
 
 DEFAULT_CONTENT_TEMPLATE = "<div><p>This is content for ID {}</p>" \
     "<p>Math: \\( \\frac{{1}}{{2}} \\)</p></div>"
 
 
-HTML_DATA_PATH = "/html"
+HTML_DATA_PATH = "/content/html"
+JSON_DATA_PATH = "/content/json"
 
 
 app = FastAPI(
@@ -30,6 +32,12 @@ class ContentItem(BaseModel):
 class ContentData(BaseModel):
     id: str
     content: List[ContentItem]
+
+
+ResponseModel = Union[
+    ContentData,
+    Dict[str, str],
+]
 
 
 def get_variants_json_from_uuid(html_directory, content_id):
@@ -59,9 +67,14 @@ def get_variants_json_from_uuid(html_directory, content_id):
         return json_content
 
 
-@app.get("/contents/{version_id}/{content_id}.json", response_model=ContentData)
-@app.get("/contents/{content_id}.json", response_model=ContentData)
+@app.get("/contents/{version_id}/{content_id}.json",
+         response_model=ResponseModel)
+@app.get("/contents/{content_id}.json", response_model=ResponseModel)
 async def get_content(content_id):
+    if Path(f"{JSON_DATA_PATH}/{content_id}.json").is_file():
+        with open(f"{JSON_DATA_PATH}/{content_id}.json") as f:
+            file_content = json.load(f)
+        return file_content
     data = get_variants_json_from_uuid(HTML_DATA_PATH, content_id)
 
     items = []
