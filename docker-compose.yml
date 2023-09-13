@@ -12,6 +12,7 @@ services:
       - ./plugins/content:/var/www/html/filter/content
       - ./plugins/fe_events_direct:/var/www/html/local/fe_events_direct
       - ./plugins/fe_events_moodle:/var/www/html/local/fe_events_moodle
+      - ./plugins/report/outline:/var/www/html/report/outline
       - .:/repo
     networks:
       - raisemoodle
@@ -47,7 +48,7 @@ services:
     build:
       context: services/contentapi
     volumes:
-      - ./services/contentapi/content:/content
+      - ../k12-contents-raise:/content
     networks:
       - raisemoodle
     ports:
