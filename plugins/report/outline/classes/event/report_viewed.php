@@ -4,20 +4,6 @@ namespace report_outline\event;
 
 defined('MOODLE_INTERNAL') || die();
 
-/**
- * The report_outline outline report viewed event class.
- *
- * @property-read array $other {
- *      Extra information about the event.
- *
- *      - string mode: display mode.
- * }
- *
- * @package    report_outline
- * @since      Moodle 2.7
- * @copyright  2013 Ankit Agarwal
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 class report_viewed extends \core\event\base {
 
     /**

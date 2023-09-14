@@ -60,7 +60,6 @@ $table->head = array_merge(['Lesson'], array_unique(array_column($attemptsData, 
 $lessonAttempts = array();
 
 $userIds = array_unique(array_column($attemptsData, 'userid'));
-// filter by courseid
 
 foreach ($userIds as $userId) {
     foreach ($pageTitles as $lessonData) {
@@ -69,7 +68,6 @@ foreach ($userIds as $userId) {
     }
 }
 
-// Loop through attempts data and update user attempts as true where necessary.
 foreach ($attemptsData as $attempt) {
     $lessonId = $attempt['lessonid'];
     $userId = $attempt['userid'];
@@ -77,7 +75,6 @@ foreach ($attemptsData as $attempt) {
     $lessonAttempts[$lessonId][$userId] = true;
 }
 
-// Populate the table with data.
 foreach ($pageTitles as $lessonData) {
     $lessonId = $lessonData['id'];
     $lessonTitle = $lessonData['name'];
@@ -92,8 +89,6 @@ foreach ($pageTitles as $lessonData) {
 }
 
 
-// Render the table.
 echo html_writer::table($table);
 
-// Add a footer to your page (optional).
 echo $OUTPUT->footer();
