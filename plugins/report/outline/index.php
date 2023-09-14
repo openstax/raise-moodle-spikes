@@ -12,13 +12,7 @@ $enddate = optional_param('enddate', null, PARAM_INT);
 
 $course = $DB->get_record('course', array('id'=>$id), '*', MUST_EXIST);
 
-$pageparams = array('id' => $id);
-if ($startdate) {
-    $pageparams['startdate'] = $startdate;
-}
-if ($enddate) {
-    $pageparams['enddate'] = $enddate;
-}
+
 
 $PAGE->set_url('/report/outline/index.php', $pageparams);
 $PAGE->set_pagelayout('report');
