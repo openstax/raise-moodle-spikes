@@ -51,7 +51,7 @@ $pluginname = get_string('pluginname', 'report_outline');
 report_helper::print_report_selector($pluginname);
 
 $getLessonGradesData = getLessonGradesData();
-$pageTitles = getLessonPageTitles();
+$pageTitles = getLessonPageTitles($course->id);
 $attemptsData = getLessonAttemptsData();
 
 $table = new html_table();
@@ -61,9 +61,10 @@ $lessonAttempts = array();
 
 $userIds = array_unique(array_column($attemptsData, 'userid'));
 // filter by courseid
+
 foreach ($userIds as $userId) {
     foreach ($pageTitles as $lessonData) {
-        $lessonId = $lessonData['lessonid'];
+        $lessonId = $lessonData['id'];
         $lessonAttempts[$lessonId][$userId] = false;
     }
 }
@@ -78,8 +79,8 @@ foreach ($attemptsData as $attempt) {
 
 // Populate the table with data.
 foreach ($pageTitles as $lessonData) {
-    $lessonId = $lessonData['lessonid'];
-    $lessonTitle = $lessonData['title'];
+    $lessonId = $lessonData['id'];
+    $lessonTitle = $lessonData['name'];
 
     $row = array($lessonTitle);
 
@@ -89,6 +90,7 @@ foreach ($pageTitles as $lessonData) {
 
     $table->data[] = $row;
 }
+
 
 // Render the table.
 echo html_writer::table($table);

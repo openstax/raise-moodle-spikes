@@ -67,24 +67,27 @@ function getLessonAttemptsData() {
     return $attemptsData;
 }
 
-function getLessonPageTitles() {
+function getLessonPageTitles($courseId) {
     global $DB;
 
     $lessonData = array();
 
-    $table = 'lesson_pages';
+    $table = 'lesson';
 
-    $fields = 'lessonid, title';
+    $fields = 'id, name, course';
 
-    $sql = "SELECT $fields FROM {" . $table . "}";
+    $sql = "SELECT $fields FROM {" . $table . "} WHERE course = :courseid";
 
-    $results = $DB->get_records_sql($sql);
+    $params = array('courseid' => $courseId);
+
+    $results = $DB->get_records_sql($sql, $params);
 
     if (!empty($results)) {
         foreach ($results as $row) {
             $lessonData[] = array(
-                'lessonid' => $row->lessonid,
-                'title' => $row->title,
+                'id' => $row->id,
+                'name' => $row->name,
+                'course' => $row->course
             );
         }
     }
