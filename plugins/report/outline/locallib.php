@@ -6,34 +6,6 @@ defined('MOODLE_INTERNAL') || die;
 require_once(__DIR__.'/lib.php');
 require_once($CFG->dirroot.'/course/lib.php');
 
-function getLessonGradesData() {
-    global $DB;
-
-    $gradesData = array();
-
-    $table = 'lesson_grades';
-
-    $fields = 'id, lessonid, userid, grade, late, completed';
-
-    $sql = "SELECT $fields FROM {" . $table . "}";
-
-    $results = $DB->get_records_sql($sql);
-
-    if (!empty($results)) {
-        foreach ($results as $row) {
-            $gradesData[] = array(
-                'id' => $row->id,
-                'lessonid' => $row->lessonid,
-                'userid' => $row->userid,
-                'grade' => $row->grade,
-                'late' => $row->late,
-                'completed' => $row->completed,
-            );
-        }
-    }
-
-    return $gradesData;
-}
 
 function getLessonAttemptsData() {
     global $DB;

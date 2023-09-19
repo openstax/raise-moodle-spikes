@@ -44,7 +44,6 @@ echo $OUTPUT->header();
 $pluginname = get_string('pluginname', 'report_outline');
 report_helper::print_report_selector($pluginname);
 
-$getLessonGradesData = getLessonGradesData();
 $pageTitles = getLessonPageTitles($course->id);
 $attemptsData = getLessonAttemptsData();
 
