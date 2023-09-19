@@ -48,7 +48,7 @@ services:
     build:
       context: services/contentapi
     volumes:
-      - ../k12-contents-raise:/content
+      - ./services/contentapi/content:/content
     networks:
       - raisemoodle
     ports:
