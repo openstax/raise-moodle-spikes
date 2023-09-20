@@ -7,6 +7,7 @@ services:
       target: ${MOODLE_TARGET:-dev}
     volumes: &moodlevolumes
       - moodledata:/var/www/moodledata
+      - ./plugins/local_persist:/var/www/html/local/persist
       - .:/repo
     networks:
       - raisemoodle
