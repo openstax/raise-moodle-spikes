@@ -10,4 +10,11 @@ defined('MOODLE_INTERNAL') || die();
         'loginrequired' => true,
         'ajax' => true
     ],
+    'local_persist_get' => [
+      'classname'   => 'local_persist\external\data',
+      'methodname'  => 'get_data',
+      'description' => 'Get data for RAISE',
+      'loginrequired' => true,
+      'ajax' => true
+  ]
   ];
