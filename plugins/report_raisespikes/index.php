@@ -4,7 +4,7 @@
 use core\report_helper;
 
 require('../../config.php');
-require_once($CFG->dirroot.'/report/outline/locallib.php');
+require_once($CFG->dirroot.'/report/raisespikes/locallib.php');
 
 $id = required_param('id',PARAM_INT);       // course id
 $startdate = optional_param('startdate', null, PARAM_INT);
@@ -14,16 +14,16 @@ $course = $DB->get_record('course', array('id'=>$id), '*', MUST_EXIST);
 
 
 
-$PAGE->set_url('/report/outline/index.php', $pageparams);
+$PAGE->set_url('/report/raisespikes/index.php', $pageparams);
 $PAGE->set_pagelayout('report');
 
 require_login($course);
 $context = context_course::instance($course->id);
-require_capability('report/outline:view', $context);
+require_capability('report/raisespikes:view', $context);
 
 
 // Trigger an activity report viewed event.
-$event = \report_outline\event\activity_report_viewed::create(array('context' => $context));
+$event = \report_raisespikes\event\activity_report_viewed::create(array('context' => $context));
 $event->trigger();
 
 $showlastaccess = true;
@@ -33,7 +33,7 @@ if (array_search('lastaccess', $hiddenfields) !== false and !has_capability('moo
     $showlastaccess = false;
 }
 
-$stractivityreport = get_string('pluginname', 'report_outline');
+$stractivityreport = get_string('pluginname', 'report_raisespikes');
 $stractivity       = get_string('activity');
 
 $PAGE->set_title($course->shortname .': '. $stractivityreport);
@@ -41,7 +41,7 @@ $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 
 // Print selector drop down.
-$pluginname = get_string('pluginname', 'report_outline');
+$pluginname = get_string('pluginname', 'report_raisespikes');
 report_helper::print_report_selector($pluginname);
 
 $pageTitles = getLessonPageTitles($course->id);

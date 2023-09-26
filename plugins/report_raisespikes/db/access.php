@@ -5,7 +5,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
 
-    'report/outline:view' => array(
+    'report/raisespikes:view' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSE,
@@ -18,7 +18,7 @@ $capabilities = array(
         'clonepermissionsfrom' => 'coursereport/outline:view',
     ),
 
-    'report/outline:viewuserreport' => array(
+    'report/raisespikes:viewuserreport' => array(
         'riskbitmask' => RISK_PERSONAL,
         'captype' => 'read',
         'contextlevel' => CONTEXT_COURSE,

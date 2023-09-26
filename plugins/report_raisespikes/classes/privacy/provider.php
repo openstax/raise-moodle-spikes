@@ -1,7 +1,7 @@
 <?php
 
 
-namespace report_outline\privacy;
+namespace report_raisespikes\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 

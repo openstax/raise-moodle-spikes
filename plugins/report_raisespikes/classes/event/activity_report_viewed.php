@@ -1,6 +1,6 @@
 <?php
 
-namespace report_outline\event;
+namespace report_raisespikes\event;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -23,7 +23,7 @@ class activity_report_viewed extends \core\event\base {
      * @return string
      */
     public static function get_name() {
-        return get_string('eventactivityreportviewed', 'report_outline');
+        return get_string('eventactivityreportviewed', 'report_raisespikes');
     }
 
     /**
@@ -41,7 +41,7 @@ class activity_report_viewed extends \core\event\base {
      * @return \moodle_url
      */
     public function get_url() {
-        return new \moodle_url('/report/outline/index.php', array('course' => $this->courseid));
+        return new \moodle_url('/report/raisespikes/index.php', array('course' => $this->courseid));
     }
 
 }
