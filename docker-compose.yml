@@ -13,6 +13,7 @@ services:
       - ./plugins/fe_events_direct:/var/www/html/local/fe_events_direct
       - ./plugins/fe_events_moodle:/var/www/html/local/fe_events_moodle
       - ./plugins/report_raisespikes:/var/www/html/report/raisespikes
+      - ./plugins/local_persist:/var/www/html/local/persist
       - .:/repo
     networks:
       - raisemoodle
