@@ -48,7 +48,7 @@ function getLessonPageTitles($courseId) {
 
     $fields = 'id, name, course';
 
-    $sql = "SELECT $fields FROM {" . $table . "} WHERE course = :courseid";
+    $sql = "SELECT $fields FROM {" . $table . "} WHERE course = :courseid AND name NOT LIKE '%Teacher Guide%' ORDER BY id ASC";
 
     $params = array('courseid' => $courseId);
 
