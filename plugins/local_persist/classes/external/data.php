@@ -16,7 +16,7 @@ class data extends external_api {
             [
                 "courseid" => new external_value(PARAM_TEXT, 'Course ID associated with this data'),
                 "key" => new external_value(PARAM_TEXT, 'Data key'),
-                "value" => new external_value(PARAM_TEXT, 'Data value')
+                "value" => new external_value(PARAM_RAW, 'Data value')
             ]
         );
     }
@@ -105,7 +105,7 @@ class data extends external_api {
     public static function get_data_returns() {
         return new external_single_structure(
             [
-                "value" => new external_value(PARAM_TEXT, 'Data value')
+                "value" => new external_value(PARAM_RAW, 'Data value')
             ]
         );
     }
