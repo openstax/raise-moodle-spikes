@@ -8,6 +8,7 @@ use external_api;
 use external_function_parameters;
 use external_value;
 use external_single_structure;
+use external_multiple_structure;
 
 class data extends external_api {
 
@@ -15,7 +16,7 @@ class data extends external_api {
         return new external_function_parameters(
             [
                 "courseid" => new external_value(PARAM_TEXT, 'Course ID associated with this data'),
-                "prefetchKey" => new external_value(PARAM_TEXT, 'Prefetch key'),
+                "prefetchKey" => new external_value(PARAM_TEXT, 'Prefetch key', VALUE_DEFAULT, null),
                 "key" => new external_value(PARAM_TEXT, 'Data key'),
                 "value" => new external_value(PARAM_RAW, 'Data value')
             ]
@@ -73,7 +74,7 @@ class data extends external_api {
         return new external_function_parameters(
             [
                 "courseid" => new external_value(PARAM_TEXT, 'Course ID associated with this data'),
-                "prefetchKey" => new external_value(PARAM_TEXT, 'Prefetch key'),
+                "prefetchKey" => new external_value(PARAM_TEXT, 'Prefetch key', VALUE_DEFAULT, null),
                 "key" => new external_value(PARAM_TEXT, 'Data key')
             ]
         );
@@ -87,29 +88,37 @@ class data extends external_api {
             ['courseid' => $courseid, 'prefetchKey' => $prefetchKey, 'key' => $key]
         );
 
-        $data = $DB->get_record(
+        $data_test = $DB->get_recordset(
             'local_persist_data',
             ['user_id' => $USER->id, 'course_id' => $params['courseid'], 'prefetch_key' => $params['prefetchKey'], 'data_key' => $params['key']],
-            'data_value',
-            IGNORE_MISSING
+            '',
+            'data_key, data_value'
         );
 
-        if ($data) {
-            return [
-                'value' => $data->data_value
-            ];
+        $data = [];
+        // This is the implementation portion. If prefetch_key exists then prefetch query, otherwise query like we
+        // were previously doing.
+        if ($data_test->valid()) {
+            foreach ($data_test as $item) {
+                $data[] = [
+                    "key" => $item->data_key,
+                    "value" => $item->data_value
+                ];
+            }
         }
 
-        return [
-            'value' => null
-        ];
+        $data_test->close();    
+        return $data;
     }
 
     public static function get_data_returns() {
-        return new external_single_structure(
-            [
-                "value" => new external_value(PARAM_RAW, 'Data value')
-            ]
+        return new external_multiple_structure(
+            new external_single_structure(
+                [
+                    "key" => new external_value(PARAM_TEXT, 'Data key'),
+                    "value" => new external_value(PARAM_RAW, 'Data value')
+                ]
+            )
         );
     }
 }
