@@ -15,24 +15,25 @@ class data extends external_api {
         return new external_function_parameters(
             [
                 "courseid" => new external_value(PARAM_TEXT, 'Course ID associated with this data'),
+                "prefetchKey" => new external_value(PARAM_TEXT, 'Prefetch key'),
                 "key" => new external_value(PARAM_TEXT, 'Data key'),
                 "value" => new external_value(PARAM_RAW, 'Data value')
             ]
         );
     }
 
-    public static function put_data($courseid, $key, $value) {
+    public static function put_data($courseid, $prefetchKey, $key, $value) {
         global $USER, $DB;
 
         $params = self::validate_parameters(
             self::put_data_parameters(),
-            ['courseid' => $courseid, 'key' => $key, 'value' => $value]
+            ['courseid' => $courseid, 'prefetchKey' => $prefetchKey, 'key' => $key, 'value' => $value]
         );
 
         $existingdata = $DB->get_record(
             'local_persist_data',
-            ['user_id' => $USER->id, 'course_id' => $params['courseid'], 'data_key' => $params['key']],
-            'id,user_id,course_id,data_key',
+            ['user_id' => $USER->id, 'course_id' => $params['courseid'], 'prefetch_key' => $params['prefetchKey'], 'data_key' => $params['key']],
+            'id,user_id,course_id,prefetch_key,data_key',
             IGNORE_MISSING
         );
 
@@ -46,6 +47,7 @@ class data extends external_api {
             $newdata = [
                 'user_id' => $USER->id,
                 'course_id' => $params['courseid'],
+                'prefetch_key' => $params['prefetchKey'],
                 'data_key' => $params['key'],
                 'data_value' => $params['value']
             ];
@@ -71,22 +73,23 @@ class data extends external_api {
         return new external_function_parameters(
             [
                 "courseid" => new external_value(PARAM_TEXT, 'Course ID associated with this data'),
+                "prefetchKey" => new external_value(PARAM_TEXT, 'Prefetch key'),
                 "key" => new external_value(PARAM_TEXT, 'Data key')
             ]
         );
     }
 
-    public static function get_data($courseid, $key) {
+    public static function get_data($courseid, $prefetchKey, $key) {
         global $USER, $DB;
 
         $params = self::validate_parameters(
             self::get_data_parameters(),
-            ['courseid' => $courseid, 'key' => $key]
+            ['courseid' => $courseid, 'prefetchKey' => $prefetchKey, 'key' => $key]
         );
 
         $data = $DB->get_record(
             'local_persist_data',
-            ['user_id' => $USER->id, 'course_id' => $params['courseid'], 'data_key' => $params['key']],
+            ['user_id' => $USER->id, 'course_id' => $params['courseid'], 'prefetch_key' => $params['prefetchKey'], 'data_key' => $params['key']],
             'data_value',
             IGNORE_MISSING
         );
