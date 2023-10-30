@@ -15,31 +15,31 @@ class data extends external_api {
     public static function put_data_parameters() {
         return new external_function_parameters(
             [
-                "courseid" => new external_value(PARAM_TEXT, 'Course ID associated with this data'),
+                "courseId" => new external_value(PARAM_TEXT, 'Course ID associated with this data'),
                 "prefetchKey" => new external_value(PARAM_TEXT, 'Prefetch key', VALUE_DEFAULT, null),
-                "key" => new external_value(PARAM_TEXT, 'Data key'),
-                "value" => new external_value(PARAM_RAW, 'Data value')
+                "dataKey" => new external_value(PARAM_TEXT, 'Data key'),
+                "dataValue" => new external_value(PARAM_RAW, 'Data value')
             ]
         );
     }
 
-    public static function put_data($courseid, $prefetchKey, $key, $value) {
+    public static function put_data($courseId, $prefetchKey, $dataKey, $dataValue) {
         global $USER, $DB;
 
         $params = self::validate_parameters(
             self::put_data_parameters(),
-            ['courseid' => $courseid, 'prefetchKey' => $prefetchKey, 'key' => $key, 'value' => $value]
+            ['courseId' => $courseId, 'prefetchKey' => $prefetchKey, 'dataKey' => $dataKey, 'dataValue' => $dataValue]
         );
 
         $existingdata = $DB->get_record(
             'local_persist_data',
-            ['user_id' => $USER->id, 'course_id' => $params['courseid'], 'data_key' => $params['key']],
+            ['user_id' => $USER->id, 'course_id' => $params['courseId'], 'data_key' => $params['dataKey']],
             'id,user_id,course_id,prefetch_key,data_key',
             IGNORE_MISSING
         );
 
         if ($existingdata) {
-            $existingdata->data_value = $params['value'];
+            $existingdata->data_value = $params['dataValue'];
             $existingdata->prefetch_key = $params['prefetchKey'];
             $DB->update_record(
                 'local_persist_data',
@@ -48,10 +48,10 @@ class data extends external_api {
         } else {
             $newdata = [
                 'user_id' => $USER->id,
-                'course_id' => $params['courseid'],
+                'course_id' => $params['courseId'],
                 'prefetch_key' => $params['prefetchKey'],
-                'data_key' => $params['key'],
-                'data_value' => $params['value']
+                'data_key' => $params['dataKey'],
+                'data_value' => $params['dataValue']
             ];
 
             $DB->insert_record(
@@ -74,32 +74,32 @@ class data extends external_api {
     public static function get_data_parameters() {
         return new external_function_parameters(
             [
-                "courseid" => new external_value(PARAM_TEXT, 'Course ID associated with this data'),
+                "courseId" => new external_value(PARAM_TEXT, 'Course ID associated with this data'),
                 "prefetchKey" => new external_value(PARAM_TEXT, 'Prefetch key', VALUE_DEFAULT, null),
-                "key" => new external_value(PARAM_TEXT, 'Data key', VALUE_DEFAULT, null)
+                "dataKey" => new external_value(PARAM_TEXT, 'Data key', VALUE_DEFAULT, null)
             ]
         );
     }
 
-    public static function get_data($courseid, $prefetchKey, $key) {
+    public static function get_data($courseId, $prefetchKey, $dataKey) {
         global $USER, $DB;
 
         $params = self::validate_parameters(
             self::get_data_parameters(),
-            ['courseid' => $courseid, 'prefetchKey' => $prefetchKey, 'key' => $key]
+            ['courseId' => $courseId, 'prefetchKey' => $prefetchKey, 'dataKey' => $dataKey]
         );
 
         if ($prefetchKey) {
             $prefetch_data = $DB->get_recordset(
                 'local_persist_data',
-                ['user_id' => $USER->id, 'course_id' => $params['courseid'], 'prefetch_key' => $params['prefetchKey']],
+                ['user_id' => $USER->id, 'course_id' => $params['courseId'], 'prefetch_key' => $params['prefetchKey']],
                 '',
                 'data_key, data_value'
             );
         } else {
             $prefetch_data = $DB->get_recordset(
                 'local_persist_data',
-                ['user_id' => $USER->id, 'course_id' => $params['courseid'], 'data_key' => $params['key']],
+                ['user_id' => $USER->id, 'course_id' => $params['courseId'], 'data_key' => $params['dataKey']],
                 '',
                 'data_key, data_value'
             );
@@ -109,8 +109,8 @@ class data extends external_api {
         if ($prefetch_data->valid()) {
             foreach ($prefetch_data as $item) {
                 $data[] = [
-                    "key" => $item->data_key,
-                    "value" => $item->data_value
+                    "dataKey" => $item->data_key,
+                    "dataValue" => $item->data_value
                 ];
             }
         }
@@ -123,8 +123,8 @@ class data extends external_api {
         return new external_multiple_structure(
             new external_single_structure(
                 [
-                    "key" => new external_value(PARAM_TEXT, 'Data key'),
-                    "value" => new external_value(PARAM_RAW, 'Data value')
+                    "dataKey" => new external_value(PARAM_TEXT, 'Data key'),
+                    "dataValue" => new external_value(PARAM_RAW, 'Data value')
                 ]
             )
         );
