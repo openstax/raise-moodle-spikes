@@ -33,13 +33,14 @@ class data extends external_api {
 
         $existingdata = $DB->get_record(
             'local_persist_data',
-            ['user_id' => $USER->id, 'course_id' => $params['courseid'], 'prefetch_key' => $params['prefetchKey'], 'data_key' => $params['key']],
+            ['user_id' => $USER->id, 'course_id' => $params['courseid'], 'data_key' => $params['key']],
             'id,user_id,course_id,prefetch_key,data_key',
             IGNORE_MISSING
         );
 
         if ($existingdata) {
             $existingdata->data_value = $params['value'];
+            $existingdata->prefetch_key = $params['prefetchKey'];
             $DB->update_record(
                 'local_persist_data',
                 $existingdata
@@ -75,7 +76,7 @@ class data extends external_api {
             [
                 "courseid" => new external_value(PARAM_TEXT, 'Course ID associated with this data'),
                 "prefetchKey" => new external_value(PARAM_TEXT, 'Prefetch key', VALUE_DEFAULT, null),
-                "key" => new external_value(PARAM_TEXT, 'Data key')
+                "key" => new external_value(PARAM_TEXT, 'Data key', VALUE_DEFAULT, null)
             ]
         );
     }
@@ -88,18 +89,25 @@ class data extends external_api {
             ['courseid' => $courseid, 'prefetchKey' => $prefetchKey, 'key' => $key]
         );
 
-        $data_test = $DB->get_recordset(
-            'local_persist_data',
-            ['user_id' => $USER->id, 'course_id' => $params['courseid'], 'prefetch_key' => $params['prefetchKey'], 'data_key' => $params['key']],
-            '',
-            'data_key, data_value'
-        );
+        if ($prefetchKey) {
+            $prefetch_data = $DB->get_recordset(
+                'local_persist_data',
+                ['user_id' => $USER->id, 'course_id' => $params['courseid'], 'prefetch_key' => $params['prefetchKey']],
+                '',
+                'data_key, data_value'
+            );
+        } else {
+            $prefetch_data = $DB->get_recordset(
+                'local_persist_data',
+                ['user_id' => $USER->id, 'course_id' => $params['courseid'], 'data_key' => $params['key']],
+                '',
+                'data_key, data_value'
+            );
+        }
 
         $data = [];
-        // This is the implementation portion. If prefetch_key exists then prefetch query, otherwise query like we
-        // were previously doing.
-        if ($data_test->valid()) {
-            foreach ($data_test as $item) {
+        if ($prefetch_data->valid()) {
+            foreach ($prefetch_data as $item) {
                 $data[] = [
                     "key" => $item->data_key,
                     "value" => $item->data_value
@@ -107,7 +115,7 @@ class data extends external_api {
             }
         }
 
-        $data_test->close();    
+        $prefetch_data->close();    
         return $data;
     }
 
