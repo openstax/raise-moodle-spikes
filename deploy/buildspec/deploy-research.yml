@@ -8,9 +8,9 @@ env:
 phases:
   install:
     commands:
-      - curl -L https://get.helm.sh/helm-v3.13.0-linux-amd64.tar.gz | tar -xvz
+      - curl -L https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz | tar -xvz
       - mv linux-amd64/helm ./helm
-      - curl -L -o yq "https://github.com/mikefarah/yq/releases/download/v4.35.2/yq_linux_amd64"
+      - curl -L -o yq "https://github.com/mikefarah/yq/releases/download/v4.40.5/yq_linux_amd64"
       - chmod +x ./helm ./yq
       - export PATH=$PWD:$PATH
   pre_build:
